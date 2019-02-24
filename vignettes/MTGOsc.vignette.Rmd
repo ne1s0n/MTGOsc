@@ -1,0 +1,31 @@
+---
+title: "MTGOsc: MTGO analysis on single cells"
+author: "Nelson Nazzicari, Simone Marini, Danila Vella"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{MTGOsc: MTGO analysis on single cells}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<!-- 
+PLEASE NOTE
+
+This is a vignette and it's not rebuilt automatically with the package.
+To do so please use the following command:
+
+devtools::build_vignettes()
+
+And *then* rebuild the package, so it updates the doc.
+--> 
+
+```{r, eval=TRUE, include=TRUE, echo=FALSE}
+#just to be sure
+library(MTGOsc)
+```
+
+## Overview
+
+This is the vignette for MTGOsc.
