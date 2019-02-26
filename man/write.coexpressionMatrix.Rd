@@ -4,21 +4,19 @@
 \alias{write.coexpressionMatrix}
 \title{Compute and save a coexpression matrix}
 \usage{
-write.coexpressionMatrix(SeuratObject, outfile.name = "coexpression_full.tsv",
-  overwrite = FALSE, fun = cor, ...)
+write.coexpressionMatrix(SeuratObject, outfolder, overwrite = FALSE,
+  fun = cor, ...)
 }
 \arguments{
 \item{SeuratObject}{the Seurat object containing the expression data}
 
-\item{outfile.name}{optional filename for coexpression file}
+\item{outfolder}{the data folder where to save the results}
 
 \item{overwrite}{boolean. Should an existing coexpression file be overwritten on disk?}
 
 \item{fun}{the coexpression function, it will be fed two genes' expression arrays. Defaults to \link[stats]{cor}}
 
 \item{...}{all extra parameters are passed to coexpression function}
-
-\item{outfolder}{the data folder where to save the results}
 }
 \value{
 the coexpression matrix, in long form

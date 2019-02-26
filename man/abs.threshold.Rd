@@ -2,19 +2,19 @@
 % Please edit documentation in R/lib.R
 \name{abs.threshold}
 \alias{abs.threshold}
-\title{Subset data for thresholded absolute values}
+\title{Subset a coexpression network for thresholded absolute values}
 \usage{
 \method{abs}{threshold}(x, threshold = 0.5)
 }
 \arguments{
-\item{x}{the data to be subset}
+\item{x}{a coexpression matrix, as returned by \link{write.coexpressionMatrix}}
 
 \item{threshold}{the value to be used for subsetting}
 }
 \value{
-a smaller version of the original data
+a smaller version of the original matrix
 }
 \description{
-This function removes from the passed data \code{x} all entried that, in absolute value, are
-less of the passed \code{threshold}.
+This function removes from the passed coexpression network \code{x} all edges that,
+in absolute value, are less of the passed \code{threshold}.
 }

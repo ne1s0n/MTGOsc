@@ -4,8 +4,8 @@
 \alias{write.edges}
 \title{Compute and save network edges}
 \usage{
-write.edges(coexpression, outfolder, keep.weights = TRUE,
-  outfile.name = NULL, overwrite = TRUE, fun = abs.threshold, ...)
+write.edges(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE,
+  fun = abs.threshold, ...)
 }
 \arguments{
 \item{coexpression}{a coexpression matrix, in long form, as the one returned by \link{write.coexpressionMatrix}}
@@ -14,8 +14,6 @@ write.edges(coexpression, outfolder, keep.weights = TRUE,
 
 \item{keep.weights}{boolean. If TRUE arc weights are kept. Defaults to FALSE.}
 
-\item{outfile.name}{optional filename for coexpression file}
-
 \item{overwrite}{boolean. Should an existing edge file be overwritten on disk?}
 
 \item{fun}{edge filtering function, defaults to \link{abs.threshold}}
@@ -23,8 +21,10 @@ write.edges(coexpression, outfolder, keep.weights = TRUE,
 \item{...}{extra arguments are passed to edge filtering function}
 }
 \value{
-f
+a trimmed network
 }
 \description{
-This function uses the passed function ()
+This function takes a network (in the form of a coexpression matrix) and trims some of the
+edges using the passed function \code{fun}. The resulting network is both returned and
+saved on disk.
 }

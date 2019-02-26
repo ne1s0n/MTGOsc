@@ -22,20 +22,14 @@
 #'
 #' @param SeuratObject the Seurat object containing the expression data
 #' @param outfolder the data folder where to save the results
-#' @param outfile.name optional filename for coexpression file
 #' @param overwrite boolean. Should an existing coexpression file be overwritten on disk?
 #' @param fun the coexpression function, it will be fed two genes' expression arrays. Defaults to \link[stats]{cor}
 #' @param ... all extra parameters are passed to coexpression function
 #'
 #' @return the coexpression matrix, in long form
 #' @export
-write.coexpressionMatrix = function(SeuratObject, outfile.name = 'coexpression_full.tsv', overwrite = FALSE, fun = cor, ...){
-  outfolder = dirname(outfile.name)
+write.coexpressionMatrix = function(SeuratObject, outfolder, overwrite = FALSE, fun = cor, ...){
   fn = get.filenames(outfolder)
-
-  if (!is.null(outfile.name)){
-    fn$coexpression.filename = file.path(outfolder, outfile.name)
-  }
 
   if (file.exists(fn$coexpression.filename) & !overwrite){
     stop(paste('File', fn$coexpression.filename, 'already exists but *overwrite* is set to FALSE'))
@@ -93,22 +87,22 @@ write.coexpressionMatrix = function(SeuratObject, outfile.name = 'coexpression_f
   return(coexpr.long)
 }
 
-
 #' Compute and save network edges
 #'
-#' This function uses the passed function ()
+#' This function takes a network (in the form of a coexpression matrix) and trims some of the
+#' edges using the passed function \code{fun}. The resulting network is both returned and
+#' saved on disk.
 #'
 #' @param coexpression a coexpression matrix, in long form, as the one returned by \link{write.coexpressionMatrix}
 #' @param outfolder the data folder where to save the results
-#' @param outfile.name optional filename for coexpression file
 #' @param keep.weights boolean. If TRUE arc weights are kept. Defaults to FALSE.
 #' @param overwrite boolean. Should an existing edge file be overwritten on disk?
 #' @param fun edge filtering function, defaults to \link{abs.threshold}
 #' @param ... extra arguments are passed to edge filtering function
 #'
-#' @return f
+#' @return a trimmed network
 #' @export
-write.edges = function(coexpression, outfolder, keep.weights = TRUE, outfile.name = NULL, overwrite = TRUE, fun = abs.threshold, ...){
+write.edges = function(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE, fun = abs.threshold, ...){
   fn = get.filenames(outfolder)
 
   if (!is.null(outfile.name)){
@@ -149,6 +143,17 @@ write.edges = function(coexpression, outfolder, keep.weights = TRUE, outfile.nam
   return(coexpression)
 }
 
+#' Writes a MTGO parameter file on disk
+#'
+#' This function creates and saves a MTGO parameter file on disk.
+#'
+#' @param outfolder the data folder where to save the param file
+#' @param overwrite boolean. Should an existing parameter file be overwritten on disk?
+#' @param MinSize MTGO MinSize parameter
+#' @param MaxSize MTGO MaxSize parameter
+#'
+#' @return nothing
+#' @export
 write.paramFile = function(outfolder, overwrite = FALSE, MinSize = 3, MaxSize = 30){
   #file management
   fn = get.filenames(outfolder)
@@ -167,7 +172,20 @@ write.paramFile = function(outfolder, overwrite = FALSE, MinSize = 3, MaxSize = 
   close(fin)
 }
 
+#' Calls for MTGO execution
+#'
+#' This function invokes MTGO. You need to have created a MTGO parameter file (see \link{write.paramFile}),
+#' an edge file (see \link{write.edges}) and a dictionary file (see \link{write.dictionary}). Files formats and
+#' names are standard so it's better
+#' to use the suggested functions to create them.
+#'
+#' @param outfolder the folder where to read data and write results
+#' @param verbose if TRUE errors and warnings are printed after the run completes
+#'
+#' @return nothing
+#' @export
 call.MTGO = function(outfolder, verbose = TRUE){
+  #TODO check java version
   fn = get.filenames(outfolder)
 
   #executing MTGO, capturing output
@@ -185,6 +203,45 @@ call.MTGO = function(outfolder, verbose = TRUE){
   }
 }
 
+
+#' Create and save a dictionary file
+#'
+#' This function takes to sets (genes and corresponding terms) and saves a dictionary
+#' file on disk.
+#'
+#' @param genes character array, list of genes
+#' @param terms character array, a list of terms associated with the genes (same order, same size)
+#' @param outfolder the data folder where to save the dictionary file
+#' @param overwrite boolean. Should an existing dictionary file be overwritten on disk?
+#'
+#' @return a data frame with genes and terms as columns
+#' @export
+write.dictionary = function(genes, terms, outfolder, overwrite = FALSE){
+  if (length(genes) != length(terms)){
+    stop('genes array and terms array must be of the same length')
+  }
+
+  fn = get.filenames(outfolder)
+  if (file.exists(fn$GO.filename) & !overwrite){
+    stop(paste('File', fn$GO.filename, 'already exists but *overwrite* is set to FALSE'))
+  }
+  dir.create(outfolder, showWarnings = FALSE, recursive = TRUE)
+
+  df = data.frame(g = genes, t = terms)
+  write.table(df, file = fn$GO.filename, row.names = FALSE, col.names = FALSE, sep='\t', quote = FALSE)
+
+  return(df)
+}
+
+#' List standard filenames
+#'
+#' All MTGOsc files have standard naming. This folders returns a list of them, starting from
+#' a root folder.
+#'
+#' @param outfolder the root folder to be used.
+#'
+#' @return a list with all standard names listed as fields
+#' @export
 get.filenames = function(outfolder){
   res = list()
   res$Seurat2MTGO.folder = '/home/nelson/research/Seurat2MTGO' #this need to change to a more packet style approach
@@ -199,12 +256,30 @@ get.filenames = function(outfolder){
   return(res)
 }
 
-cor.threshold = function(x, y, threshold = NA, use = "everything", method = c("pearson", "kendall", "spearman")){
-  #if threshold is NA we just fall back to old correlation function
-  #otherwise, we remove all values which are, for both arrays and in absolute value
-  #less then passed threshold
-
-  if (!is.na(threshold)){
+#' Compute correlation after absolute threshold filter
+#'
+#' This function is similar to the standard \link{cor}, but values are first filtered
+#' comparing them in absolute value to the passed \code{threshold}. For this reason
+#' it is not possible to support matrices as input.
+#' If \code{threshold} is NULL the function just falls back to standard correlation function.
+#' Otherwise it removes all values which are, for at least one array and in absolute value,
+#' less then passed threshold
+#'
+#' @param x a numeric vector
+#' @param y a second numeric vector
+#' @param threshold numeric value. If NA the func
+#' @param use an optional character string giving a method for computing
+#' covariances in the presence of missing values. This must be (an abbreviation of)
+#' one of the strings "everything", "all.obs", "complete.obs", "na.or.complete", or
+#' "pairwise.complete.obs".
+#' @param method a character string indicating which correlation coefficient
+#' (or covariance) is to be computed. One of "pearson" (default), "kendall", or
+#' "spearman": can be abbreviated.
+#'
+#' @return a numeric array with the computed correlations
+#' @export
+cor.threshold = function(x, y, threshold = NULL, use = "everything", method = c("pearson", "kendall", "spearman")){
+  if (!is.NULL(threshold)){
     #in this case we remove some samples
     x.bad = abs(x) <= threshold
     y.bad = abs(y) <= threshold
@@ -217,26 +292,37 @@ cor.threshold = function(x, y, threshold = NA, use = "everything", method = c("p
   return(cor(x=x, y=y, use=use, method=method))
 }
 
-#' Subset data for thresholded absolute values
+#' Subset a coexpression network for thresholded absolute values
 #'
-#' This function removes from the passed data \code{x} all entried that, in absolute value, are
-#' less of the passed \code{threshold}.
+#' This function removes from the passed coexpression network \code{x} all edges that,
+#' in absolute value, are less of the passed \code{threshold}.
 #'
-#' @param x the data to be subset
+#' @param x a coexpression matrix, as returned by \link{write.coexpressionMatrix}
 #' @param threshold the value to be used for subsetting
 #'
-#' @return a smaller version of the original data
+#' @return a smaller version of the original matrix
 #' @export
 abs.threshold = function(x, threshold = 0.5){
   sel = abs(x$coexpr) >= threshold
   return(x[sel,])
 }
 
-top.values = function(x, percentile = 0.5){
-  sel = x$coexpr >= quantile(x$coexpr, percentile)
-  return(x[sel,])
-}
-
+#' Subset a coexpression network to maximise free scale fit
+#'
+#' This function removes edges from the passed network so that the resulting subnetwork
+#' is maximally scale free. First, for each value in \code{thresholds} argument, a subnetwork
+#' is created. Each subnetwork is obtained from the original \code{x} removing all edges
+#' smaller, in absolute value, than the corresponding threshold.
+#' Then each subnetwork is fitted a power law, and the one whose gamma is closest
+#' to \code{target.gamma} is selected.
+#'
+#' @param x a coexpression network, as returned by \link{write.coexpressionMatrix}
+#' @param thresholds numeric array of thresholds to be considered
+#' @param target.gamma for biological networks target gamma is somewhere between 2 and 3
+#' @param verbose should extra informations be printed?
+#'
+#' @return a smaller version of the original matrix
+#' @export
 scale.free.threshold = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), target.gamma = 2, verbose=TRUE){
   best.gamma = NULL
   best.delta = Inf
