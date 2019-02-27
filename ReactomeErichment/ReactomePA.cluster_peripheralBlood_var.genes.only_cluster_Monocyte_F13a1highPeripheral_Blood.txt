@@ -1,0 +1,11 @@
+ID,Description,GeneRatio,BgRatio,pvalue,p.adjust,qvalue,geneID,Count
+R-MMU-6803157,Antimicrobial peptides,10/127,53/8657,3.69517529184894e-09,7.72490241203271e-07,6.99590847132507e-07,Ctsg/Elane/Prtn3/Rnase6/Lcn2/Ltf/S100a8/S100a9/Ear2/Ccr2,10
+R-MMU-1247673,Erythrocytes take up oxygen and release carbon dioxide,6/127,11/8657,3.85281915812105e-09,7.72490241203271e-07,6.99590847132507e-07,Aqp1/Car1/Hba-a1/Hba-a2/Hbb-bs/Hbb-bt,6
+R-MMU-1237044,Erythrocytes take up carbon dioxide and release oxygen,6/127,15/8657,3.97749316130473e-08,3.98743689420799e-06,3.61114510697403e-06,Aqp1/Car1/Hba-a1/Hba-a2/Hbb-bs/Hbb-bt,6
+R-MMU-1480926,O2/CO2 exchange in erythrocytes,6/127,15/8657,3.97749316130473e-08,3.98743689420799e-06,3.61114510697403e-06,Aqp1/Car1/Hba-a1/Hba-a2/Hbb-bs/Hbb-bt,6
+R-MMU-2168880,Scavenging of heme from plasma,5/127,19/8657,6.1919476311605e-06,0.000496594200019072,0.000449730933210605,Hba-a1/Hba-a2/Hbb-bs/Hbb-bt/Jchain,5
+R-MMU-2173782,Binding and Uptake of Ligands by Scavenger Receptors,6/127,34/8657,8.50468587453999e-06,0.000568396505948422,0.000514757302932684,Hba-a1/Hba-a2/Hbb-bs/Hbb-bt/Jchain/Apoe,6
+R-MMU-202733,Cell surface interactions at the vascular wall,9/127,107/8657,2.53050893913786e-05,0.00144962012084897,0.00131282042707152,Atp1b1/Fcer1g/Igll1/Itga4/Vpreb3/Cd74/Fn1/Jchain/Pf4,9
+R-MMU-114608,Platelet degranulation ,8/127,132/8657,0.000692523244936755,0.0347127276524549,0.0314369104609448,Fn1/Cd63/Ctsw/Plek/Psap/Srgn/Trf/Pf4,8
+R-MMU-391160,Signal regulatory protein family interactions,3/127,13/8657,0.000791972305073096,0.0352867660371457,0.0319567772222477,Fyb/Tyrobp/Ptk2b,3
+R-MMU-76005,Response to elevated platelet cytosolic Ca2+,8/127,137/8657,0.000884381469143346,0.0354636969126482,0.0321170112478373,Fn1/Cd63/Ctsw/Plek/Psap/Srgn/Trf/Pf4,8
