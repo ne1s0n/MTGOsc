@@ -105,10 +105,6 @@ write.coexpressionMatrix = function(SeuratObject, outfolder, overwrite = FALSE, 
 write.edges = function(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE, fun = abs.threshold, ...){
   fn = get.filenames(outfolder)
 
-  if (!is.null(outfile.name)){
-    fn$edges.filename = file.path(outfolder, outfile.name)
-  }
-
   if (file.exists(fn$edges.filename) & !overwrite){
     stop(paste('File', fn$edges.filename, 'already exists but *overwrite* is set to FALSE'))
   }
@@ -278,7 +274,7 @@ get.filenames = function(outfolder){
 #' @return a numeric array with the computed correlations
 #' @export
 cor.threshold = function(x, y, threshold = NULL, use = "everything", method = c("pearson", "kendall", "spearman")){
-  if (!is.NULL(threshold)){
+  if (!is.null(threshold)){
     #in this case we remove some samples
     x.bad = abs(x) <= threshold
     y.bad = abs(y) <= threshold
