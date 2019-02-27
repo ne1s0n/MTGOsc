@@ -12,12 +12,50 @@
 
 <meta name="author" content="Nelson Nazzicari, Simone Marini, Danila Vella" />
 
-<meta name="date" content="2019-02-24" />
+<meta name="date" content="2019-02-27" />
 
 <title>MTGOsc: MTGO analysis on single cells</title>
 
 
 
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
 
 
 
@@ -32,12 +70,14 @@
 
 <h1 class="title toc-ignore">MTGOsc: MTGO analysis on single cells</h1>
 <h4 class="author"><em>Nelson Nazzicari, Simone Marini, Danila Vella</em></h4>
-<h4 class="date"><em>2019-02-24</em></h4>
+<h4 class="date"><em>2019-02-27</em></h4>
 
 
 <div id="TOC">
 <ul>
 <li><a href="#overview">Overview</a></li>
+<li><a href="#gene-module-enrichment-on-reactome">Gene module enrichment on Reactome</a></li>
+<li><a href="#enriched-term-literature-search-with-rismed">Enriched term literature search with RISmed</a></li>
 </ul>
 </div>
 
@@ -54,6 +94,89 @@ And *then* rebuild the package, so it updates the doc.
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <p>This is the vignette for MTGOsc.</p>
+</div>
+<div id="gene-module-enrichment-on-reactome" class="section level2">
+<h2>Gene module enrichment on Reactome</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is</span>
+<span class="co"># complementary to the exctraction of Reactome pathways by MTGO-SC.</span>
+
+<span class="co"># load libraries for gene enrichment on Reactome</span>
+<span class="kw">library</span>(ReactomePA)
+<span class="kw">library</span>(clusterProfiler)
+
+firstup &lt;-<span class="st"> </span>function(x) {
+  x &lt;-<span class="st"> </span><span class="kw">tolower</span>(x)
+  <span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>) &lt;-<span class="st"> </span><span class="kw">toupper</span>(<span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>))
+  <span class="kw">return</span>(x)
+}
+
+<span class="co"># collecting all the genes </span>
+files &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;../ReactomeErichment&quot;</span>)
+
+for (file in files){
+  genes &lt;-<span class="st"> </span><span class="kw">read.table</span>(file, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)
+  genes &lt;-<span class="st"> </span><span class="kw">firstup</span>(genes[<span class="dv">2</span>:<span class="kw">length</span>(genes$V1),])
+  genes =<span class="st"> </span><span class="kw">bitr</span>(genes, <span class="dt">fromType=</span><span class="st">&quot;SYMBOL&quot;</span>, <span class="dt">toType=</span><span class="st">&quot;ENTREZID&quot;</span>, <span class="dt">OrgDb=</span><span class="st">&quot;org.Mm.eg.db&quot;</span>)
+  genes =<span class="st"> </span>genes$ENTREZID
+  names &lt;-<span class="st"> </span><span class="kw">strsplit</span>(file, <span class="st">&quot;/&quot;</span>)
+  name &lt;-<span class="st"> </span>names[[<span class="dv">1</span>]][<span class="kw">length</span>(names[[<span class="dv">1</span>]])]
+  enriched &lt;-<span class="st"> </span><span class="kw">enrichPathway</span>(<span class="dt">gene=</span>genes, <span class="dt">pvalueCutoff=</span><span class="fl">0.05</span>, <span class="dt">readable=</span>T, <span class="dt">organism =</span> <span class="st">&quot;mouse&quot;</span>, <span class="dt">pAdjustMethod =</span> <span class="st">&quot;BH&quot;</span>)
+  <span class="kw">write.table</span>(enriched, <span class="dt">file =</span> <span class="kw">paste</span>(<span class="st">&quot;../ReactomeErichment/ReactomePA.&quot;</span>, name, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> <span class="ot">FALSE</span>, <span class="dt">quote =</span> <span class="ot">FALSE</span>, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>)
+}</code></pre></div>
+</div>
+<div id="enriched-term-literature-search-with-rismed" class="section level2">
+<h2>Enriched term literature search with RISmed</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># In this example we search the literature for the Basal Epithelial cell type and the pathway terms</span>
+<span class="co"># retrieved by both MTGO-SC (pathway labelling gene modules) and ReactomePA (pathways enriched for the whole basal epithelial gene network</span>
+
+<span class="kw">library</span>(RISmed)
+
+<span class="co"># set the search parameters</span>
+file_MTGO&lt;-<span class="st">&quot;Modules_Best_QGO.txt&quot;</span>
+file_enriched&lt;-<span class="st">&quot;Basal epithelial cell&quot;</span>
+tissue&lt;-<span class="st">&quot;Bladder&quot;</span>
+celltype&lt;-<span class="st">&quot;Basal Epithelial Cell&quot;</span>
+
+modules&lt;-<span class="kw">read.table</span>(file_MTGO,<span class="dt">sep=</span><span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>,<span class="dt">header=</span>T)
+terms_MTGO&lt;-<span class="kw">as.character</span>(modules[,<span class="dv">4</span>])
+terms_enriched&lt;-<span class="kw">setdiff</span>(<span class="kw">as.character</span>(<span class="kw">read.table</span>(file_enriched,<span class="dt">header=</span>T)[,<span class="dv">1</span>]),<span class="ot">NA</span>)
+
+terms&lt;-<span class="kw">union</span>(terms_MTGO,terms_enriched)
+
+
+<span class="co"># Perform all the PUBMED searchings</span>
+
+pubmed_search_both&lt;-<span class="kw">c</span>()
+pubmed_search_term&lt;-<span class="kw">c</span>()
+for(k in terms)
+{
+    <span class="kw">print</span>(k)
+res &lt;-<span class="st"> </span><span class="kw">EUtilsSummary</span>(<span class="kw">paste</span>(tissue,celltype,k), <span class="dt">type=</span><span class="st">&quot;esearch&quot;</span>, <span class="dt">db=</span><span class="st">&quot;pubmed&quot;</span>, <span class="dt">datetype=</span><span class="st">'pdat'</span>, <span class="dt">mindate=</span><span class="dv">2000</span>, <span class="dt">maxdate=</span><span class="dv">2019</span>, <span class="dt">retmax=</span><span class="dv">500</span>)
+pubmed_search_both[[k]]&lt;-<span class="kw">QueryCount</span>(res)
+res &lt;-<span class="st"> </span><span class="kw">EUtilsSummary</span>(<span class="kw">paste</span>(tissue,k), <span class="dt">type=</span><span class="st">&quot;esearch&quot;</span>, <span class="dt">db=</span><span class="st">&quot;pubmed&quot;</span>, <span class="dt">datetype=</span><span class="st">'pdat'</span>, <span class="dt">mindate=</span><span class="dv">2000</span>, <span class="dt">maxdate=</span><span class="dv">2019</span>, <span class="dt">retmax=</span><span class="dv">500</span>)
+pubmed_search_term[[k]]&lt;-<span class="kw">QueryCount</span>(res)
+<span class="kw">Sys.sleep</span>(<span class="fl">0.5</span>)  <span class="co"># a connection error might occur without this pause</span>
+}
+
+pubmed_search_universe&lt;-<span class="kw">QueryCount</span>(<span class="kw">EUtilsSummary</span>(tissue, <span class="dt">type=</span><span class="st">&quot;esearch&quot;</span>, <span class="dt">db=</span><span class="st">&quot;pubmed&quot;</span>, <span class="dt">datetype=</span><span class="st">'pdat'</span>, <span class="dt">mindate=</span><span class="dv">2000</span>, <span class="dt">maxdate=</span><span class="dv">2019</span>, <span class="dt">retmax=</span><span class="dv">500</span>))
+pubmed_search_celltype&lt;-<span class="kw">QueryCount</span>(<span class="kw">EUtilsSummary</span>(<span class="kw">paste</span>(tissue,celltype), <span class="dt">type=</span><span class="st">&quot;esearch&quot;</span>, <span class="dt">db=</span><span class="st">&quot;pubmed&quot;</span>, <span class="dt">datetype=</span><span class="st">'pdat'</span>, <span class="dt">mindate=</span><span class="dv">2000</span>, <span class="dt">maxdate=</span><span class="dv">2019</span>, <span class="dt">retmax=</span><span class="dv">500</span>))
+
+
+<span class="co"># Compute p.values</span>
+
+pvals&lt;-<span class="kw">c</span>()
+
+M&lt;-pubmed_search_celltype
+N&lt;-pubmed_search_universe
+
+for(i in terms)
+{
+    x&lt;-pubmed_search_both[[i]]
+    k&lt;-pubmed_search_term[[i]]
+    pvals[[i]]&lt;-<span class="kw">signif</span>(<span class="kw">phyper</span>(x<span class="dv">-1</span>,M,N-M,k,<span class="dt">lower.tail=</span>F),<span class="dv">2</span>)
+}
+
+PUBMEDsearch_results&lt;-<span class="kw">cbind</span>(terms,pvals,pubmed_search_both,pubmed_search_term,pubmed_search_celltype,pubmed_search_universe)</code></pre></div>
 </div>
 
 

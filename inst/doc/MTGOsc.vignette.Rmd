@@ -29,3 +29,101 @@ library(MTGOsc)
 ## Overview
 
 This is the vignette for MTGOsc.
+
+## Gene module enrichment on Reactome
+```{r, echo=TRUE, eval=FALSE}
+# Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is
+# complementary to the exctraction of Reactome pathways by MTGO-SC.
+
+# load libraries for gene enrichment on Reactome
+library(ReactomePA)
+library(clusterProfiler)
+
+firstup <- function(x) {
+  x <- tolower(x)
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  return(x)
+}
+
+# collecting all the genes 
+files <- list.files(path = "../ReactomeErichment")
+
+for (file in files){
+  genes <- read.table(file, stringsAsFactors = FALSE)
+  genes <- firstup(genes[2:length(genes$V1),])
+  genes = bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+  genes = genes$ENTREZID
+  names <- strsplit(file, "/")
+  name <- names[[1]][length(names[[1]])]
+  enriched <- enrichPathway(gene=genes, pvalueCutoff=0.05, readable=T, organism = "mouse", pAdjustMethod = "BH")
+  write.table(enriched, file = paste("../ReactomeErichment/ReactomePA.", name, sep = ""), row.names = FALSE, quote = FALSE, sep = ",")
+}
+```
+
+## Enriched term literature search with RISmed
+
+```{r, echo=TRUE, eval=FALSE}
+# In this example we search the literature for the Basal Epithelial cell type and the pathway terms
+# retrieved by both MTGO-SC (pathway labelling gene modules) and ReactomePA (pathways enriched for the whole basal epithelial gene network
+
+library(RISmed)
+
+# set the search parameters
+file_MTGO<-"Modules_Best_QGO.txt"
+file_enriched<-"Basal epithelial cell"
+tissue<-"Bladder"
+celltype<-"Basal Epithelial Cell"
+
+modules<-read.table(file_MTGO,sep="\t",header=T)
+terms_MTGO<-as.character(modules[,4])
+terms_enriched<-setdiff(as.character(read.table(file_enriched,header=T)[,1]),NA)
+
+terms<-union(terms_MTGO,terms_enriched)
+
+
+# Perform all the PUBMED searchings
+
+pubmed_search_both<-c()
+pubmed_search_term<-c()
+for(k in terms)
+{
+    print(k)
+res <- EUtilsSummary(paste(tissue,celltype,k), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500)
+pubmed_search_both[[k]]<-QueryCount(res)
+res <- EUtilsSummary(paste(tissue,k), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500)
+pubmed_search_term[[k]]<-QueryCount(res)
+Sys.sleep(0.5)  # a connection error might occur without this pause
+}
+
+pubmed_search_universe<-QueryCount(EUtilsSummary(tissue, type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500))
+pubmed_search_celltype<-QueryCount(EUtilsSummary(paste(tissue,celltype), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500))
+
+
+# Compute p.values
+
+pvals<-c()
+
+M<-pubmed_search_celltype
+N<-pubmed_search_universe
+
+for(i in terms)
+{
+    x<-pubmed_search_both[[i]]
+    k<-pubmed_search_term[[i]]
+    pvals[[i]]<-signif(phyper(x-1,M,N-M,k,lower.tail=F),2)
+}
+
+PUBMEDsearch_results<-cbind(terms,pvals,pubmed_search_both,pubmed_search_term,pubmed_search_celltype,pubmed_search_universe)
+```
+
+
+
+
+
+
+
+
+
+
+
+

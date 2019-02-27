@@ -31,7 +31,7 @@ library(MTGOsc)
 This is the vignette for MTGOsc.
 
 ## Gene module enrichment on Reactome
-```{r}
+```{r, echo=TRUE, eval=FALSE}
 # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is
 # complementary to the exctraction of Reactome pathways by MTGO-SC.
 
@@ -59,8 +59,10 @@ for (file in files){
   write.table(enriched, file = paste("../ReactomeErichment/ReactomePA.", name, sep = ""), row.names = FALSE, quote = FALSE, sep = ",")
 }
 ```
+
 ## Enriched term literature search with RISmed
-```{r}
+
+```{r, echo=TRUE, eval=FALSE}
 # In this example we search the literature for the Basal Epithelial cell type and the pathway terms
 # retrieved by both MTGO-SC (pathway labelling gene modules) and ReactomePA (pathways enriched for the whole basal epithelial gene network
 
