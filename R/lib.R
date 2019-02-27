@@ -244,8 +244,7 @@ write.dictionary = function(genes, terms, outfolder, overwrite = FALSE){
 #' @export
 get.filenames = function(outfolder){
   res = list()
-  res$Seurat2MTGO.folder = '/home/nelson/research/Seurat2MTGO' #this need to change to a more packet style approach
-  res$MTGO.jar = file.path(res$Seurat2MTGO.folder, 'inst', 'java', 'MTGO.jar')
+  res$MTGO.jar = file.path(find.package('MTGOsc'), 'java', 'MTGO.jar')
   res$coexpression.filename = file.path(outfolder, 'coexpression_full.tsv')
   res$edges.filename = file.path(outfolder, 'edges.tsv')
   res$gene_list.filename = file.path(outfolder, 'genes_list.txt')
