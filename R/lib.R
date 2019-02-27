@@ -403,5 +403,3 @@ verify.java = function(){
 Openjdk is not fine, you need to install the original one from Oracle.')
   }
 }
-
-verify.java()
