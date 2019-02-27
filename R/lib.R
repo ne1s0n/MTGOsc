@@ -362,3 +362,46 @@ scale.free.threshold = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), t
 
   return(best.network)
 }
+
+#' Verifies if the correct Java version is installed on the system
+#'
+#' This function verifies that the correct version of Java (TM) is installed on
+#' the system. MTGO requires the Java (TM) Runtime Environment (version >= 1.8)
+#' released by Oracle to run.
+#'
+#'
+#' @return NULL if the right Java is present, or a character vector containing an error message if
+#' something is wrong
+#' @export
+verify.java = function(){
+  #executing MTGO, capturing output
+  res = system2(
+    stdout = TRUE, stderr = TRUE,
+    command = 'java',
+    args = c('-version')
+  )
+
+  all.good = TRUE
+
+  #Java the original (Java(TM))
+  all.good = all.good & grepl(pattern = 'Java\\(TM\\)', res[2])
+
+  #at least version 1.8
+  tmp = gsub(pattern = 'java version "', replacement = '', res[1])
+  pieces = strsplit(tmp, split = '.', fixed = TRUE)[[1]]
+  if (length(pieces) < 2){
+    all.good = FALSE
+  }else{
+    version = as.numeric(pieces[1]) + as.numeric(pieces[2])/10
+    all.good = all.good & version >= 1.8
+  }
+
+  if (all.good){
+    return(NULL)
+  }else{
+    return('Java(TM) Runtime Environment version 1.8 or more recent is required to run MTGO.\n
+Openjdk is not fine, you need to install the original one from Oracle.')
+  }
+}
+
+verify.java()
