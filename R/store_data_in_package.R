@@ -22,11 +22,7 @@
 # setwd("~/research/MTGOsc/")
 #
 # #loading bladder full dataset
-# bladder = readRDS('~/research/Seurat2MTGO.notes/dataset5.2/data/Bladder.dataset5.RDS')
-#
-# #removing the heavy parts of the Seurat object, not used by MTGOsc
-# bladder@raw.data = NULL
-# bladder@scale.data = NULL
+# bladder.big = readRDS('~/research/Seurat2MTGO.notes/dataset5.2/data/Bladder.dataset5.RDS')
 #
 # #finding differentially expressed genes for each cluster
 # markers = FindAllMarkers(bladder, logfc.threshold = 1)
@@ -36,17 +32,20 @@
 # table(bladder@ident)
 #
 # #subsetting to just three clusters: a big one, a medium one, a small one
-# #and subsetting also to differentially expressed genes
 #
 # #Stromal cell_Dpt high(Bladder) : 651 cells
 # #Urothelium(Bladder) : 277 cells
 # #Umbrella cell(Bladder) : 50 cells
 # target = c('Stromal cell_Dpt high(Bladder)', 'Urothelium(Bladder)', 'Umbrella cell(Bladder)')
-# cell.selection = bladder@ident %in% target
-# gene.selection = markers$cluster %in% target
-# bladder@data = bladder@data[gene.selection,cell.selection]
-# bladder@ident = bladder@ident[cell.selection]
-# markers = markers[gene.selection,]
+# bladder = SubsetData(bladder.big, ident.use = target, do.clean = TRUE, subset.raw = TRUE)
+#
+# #and subsetting also to differentially expressed genes only
+# markers = subset(markers, cluster %in% target)
+# bladder@data = bladder@data[unique(markers$gene),]
+#
+# #removing the heavy parts of the Seurat object, not used by MTGOsc
+# bladder@raw.data = NULL
+# bladder@scale.data = NULL
 #
 # #storing in MTGOsc
 # devtools::use_data(bladder, markers, overwrite = TRUE)
