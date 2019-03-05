@@ -65,7 +65,7 @@ root = tempdir() #change this to your preferred local path
 dir.create(root, recursive = TRUE, showWarnings = FALSE)
 ```
 
-We are now ready to start with MTGOsc.
+We are now ready to start with MTGOsc:
 
 ```{r, echo=TRUE, eval=TRUE}
 dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
