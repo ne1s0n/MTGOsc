@@ -181,7 +181,12 @@ write.paramFile = function(outfolder, overwrite = FALSE, MinSize = 3, MaxSize = 
 #' @return nothing
 #' @export
 call.MTGO = function(outfolder, verbose = TRUE){
-  #TODO check java version
+  #checking for correct java version
+  msg = verify.java()
+  if (!is.null(msg)){
+    stop(msg)
+  }
+
   fn = get.filenames(outfolder)
 
   #executing MTGO, capturing output
