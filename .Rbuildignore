@@ -1,2 +1,3 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^R\store_data_in_package.R
