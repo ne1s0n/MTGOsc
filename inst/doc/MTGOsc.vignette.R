@@ -1,6 +1,24 @@
-## ---- eval=TRUE, include=TRUE, echo=FALSE--------------------------------
-#just to be sure
+## ---- echo=TRUE, eval=TRUE, results=FALSE, message=FALSE-----------------
+library(Seurat)
 library(MTGOsc)
+
+## ---- echo=TRUE, eval=TRUE-----------------------------------------------
+#this is a (simplified) Seurat object
+print(bladder)
+
+#this come from applying Seurat function FindAllMarkers() to the bladder dataset
+head(markers)
+
+## ---- echo=TRUE, eval=TRUE-----------------------------------------------
+table(bladder@ident)
+
+## ---- echo=TRUE, eval=TRUE-----------------------------------------------
+cells.selected = bladder@ident == 'Urothelium(Bladder)'
+genes.selected = subset(markers, cluster == 'Urothelium(Bladder)')$gene
+
+## ---- echo=TRUE, eval=TRUE-----------------------------------------------
+root = tempdir() #change this to your preferred local path
+dir.create(root, recursive = TRUE, showWarnings = FALSE)
 
 ## ---- echo=TRUE, eval=FALSE----------------------------------------------
 #  # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is

@@ -12,7 +12,7 @@
 
 <meta name="author" content="Nelson Nazzicari, Simone Marini, Danila Vella" />
 
-<meta name="date" content="2019-02-27" />
+<meta name="date" content="2019-03-05" />
 
 <title>MTGOsc: MTGO analysis on single cells</title>
 
@@ -70,12 +70,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">MTGOsc: MTGO analysis on single cells</h1>
 <h4 class="author"><em>Nelson Nazzicari, Simone Marini, Danila Vella</em></h4>
-<h4 class="date"><em>2019-02-27</em></h4>
+<h4 class="date"><em>2019-03-05</em></h4>
 
 
 <div id="TOC">
 <ul>
-<li><a href="#overview">Overview</a></li>
+<li><a href="#example-data">Example data</a></li>
 <li><a href="#gene-module-enrichment-on-reactome">Gene module enrichment on Reactome</a></li>
 <li><a href="#enriched-term-literature-search-with-rismed">Enriched term literature search with RISmed</a></li>
 </ul>
@@ -91,9 +91,46 @@ devtools::build_vignettes()
 
 And *then* rebuild the package, so it updates the doc.
 -->
-<div id="overview" class="section level2">
-<h2>Overview</h2>
-<p>This is the vignette for MTGOsc.</p>
+<div id="example-data" class="section level2">
+<h2>Example data</h2>
+<p>MTGOsc comes with some example data from the Mouse Atlas in the form of a (simplified for storage reasons) Seurat object. Let’s start with loading Seurat and MTGO:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Seurat)
+<span class="kw">library</span>(MTGOsc)</code></pre></div>
+<p>Loading MTGOsc also loads two objects: <em>bladder</em> and <em>markers</em>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#this is a (simplified) Seurat object</span>
+<span class="kw">print</span>(bladder)</code></pre></div>
+<pre><code>## An object of class seurat in project Bladder_rm.batch_dge.txt 
+##  270 genes across 978 samples.</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#this come from applying Seurat function FindAllMarkers() to the bladder dataset</span>
+<span class="kw">head</span>(markers)</code></pre></div>
+<pre><code>##                  p_val avg_logFC pct.1 pct.2     p_val_adj
+## Dpt.8     0.000000e+00  2.477901 0.840 0.075  0.000000e+00
+## Lum.10    0.000000e+00  2.345470 0.972 0.188  0.000000e+00
+## Mgp.9    6.035591e-291  2.415152 0.985 0.388 8.199954e-287
+## Clec3b.9 2.036329e-270  1.868069 0.963 0.227 2.766557e-266
+## Dcn.9    1.645978e-252  1.516147 1.000 0.383 2.236226e-248
+## Cxcl12.7 1.461457e-237  2.115419 0.862 0.193 1.985535e-233
+##                                 cluster   gene
+## Dpt.8    Stromal cell_Dpt high(Bladder)    Dpt
+## Lum.10   Stromal cell_Dpt high(Bladder)    Lum
+## Mgp.9    Stromal cell_Dpt high(Bladder)    Mgp
+## Clec3b.9 Stromal cell_Dpt high(Bladder) Clec3b
+## Dcn.9    Stromal cell_Dpt high(Bladder)    Dcn
+## Cxcl12.7 Stromal cell_Dpt high(Bladder) Cxcl12</code></pre>
+<p>Bladder object contains three clusters:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(bladder<span class="op">@</span>ident)</code></pre></div>
+<pre><code>## 
+## Stromal cell_Dpt high(Bladder)         Umbrella cell(Bladder) 
+##                            651                             50 
+##            Urothelium(Bladder) 
+##                            277</code></pre>
+<p>For this tutorial we’ll focus on Urothelium, which is of intermediate size. We create two “selector” arrays, one for cells and one for genes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cells.selected =<span class="st"> </span>bladder<span class="op">@</span>ident <span class="op">==</span><span class="st"> 'Urothelium(Bladder)'</span>
+genes.selected =<span class="st"> </span><span class="kw">subset</span>(markers, cluster <span class="op">==</span><span class="st"> 'Urothelium(Bladder)'</span>)<span class="op">$</span>gene</code></pre></div>
+<p>MTGOsc needs a folder where to save temporary files and final results.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">root =<span class="st"> </span><span class="kw">tempdir</span>() <span class="co">#change this to your preferred local path</span>
+<span class="kw">dir.create</span>(root, <span class="dt">recursive =</span> <span class="ot">TRUE</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<p>We are now ready to</p>
 </div>
 <div id="gene-module-enrichment-on-reactome" class="section level2">
 <h2>Gene module enrichment on Reactome</h2>
@@ -104,7 +141,7 @@ And *then* rebuild the package, so it updates the doc.
 <span class="kw">library</span>(ReactomePA)
 <span class="kw">library</span>(clusterProfiler)
 
-firstup &lt;-<span class="st"> </span>function(x) {
+firstup &lt;-<span class="st"> </span><span class="cf">function</span>(x) {
   x &lt;-<span class="st"> </span><span class="kw">tolower</span>(x)
   <span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>) &lt;-<span class="st"> </span><span class="kw">toupper</span>(<span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>))
   <span class="kw">return</span>(x)
@@ -113,11 +150,11 @@ firstup &lt;-<span class="st"> </span>function(x) {
 <span class="co"># collecting all the genes </span>
 files &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;../ReactomeErichment&quot;</span>)
 
-for (file in files){
+<span class="cf">for</span> (file <span class="cf">in</span> files){
   genes &lt;-<span class="st"> </span><span class="kw">read.table</span>(file, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)
-  genes &lt;-<span class="st"> </span><span class="kw">firstup</span>(genes[<span class="dv">2</span>:<span class="kw">length</span>(genes$V1),])
+  genes &lt;-<span class="st"> </span><span class="kw">firstup</span>(genes[<span class="dv">2</span><span class="op">:</span><span class="kw">length</span>(genes<span class="op">$</span>V1),])
   genes =<span class="st"> </span><span class="kw">bitr</span>(genes, <span class="dt">fromType=</span><span class="st">&quot;SYMBOL&quot;</span>, <span class="dt">toType=</span><span class="st">&quot;ENTREZID&quot;</span>, <span class="dt">OrgDb=</span><span class="st">&quot;org.Mm.eg.db&quot;</span>)
-  genes =<span class="st"> </span>genes$ENTREZID
+  genes =<span class="st"> </span>genes<span class="op">$</span>ENTREZID
   names &lt;-<span class="st"> </span><span class="kw">strsplit</span>(file, <span class="st">&quot;/&quot;</span>)
   name &lt;-<span class="st"> </span>names[[<span class="dv">1</span>]][<span class="kw">length</span>(names[[<span class="dv">1</span>]])]
   enriched &lt;-<span class="st"> </span><span class="kw">enrichPathway</span>(<span class="dt">gene=</span>genes, <span class="dt">pvalueCutoff=</span><span class="fl">0.05</span>, <span class="dt">readable=</span>T, <span class="dt">organism =</span> <span class="st">&quot;mouse&quot;</span>, <span class="dt">pAdjustMethod =</span> <span class="st">&quot;BH&quot;</span>)
@@ -148,7 +185,7 @@ terms&lt;-<span class="kw">union</span>(terms_MTGO,terms_enriched)
 
 pubmed_search_both&lt;-<span class="kw">c</span>()
 pubmed_search_term&lt;-<span class="kw">c</span>()
-for(k in terms)
+<span class="cf">for</span>(k <span class="cf">in</span> terms)
 {
     <span class="kw">print</span>(k)
 res &lt;-<span class="st"> </span><span class="kw">EUtilsSummary</span>(<span class="kw">paste</span>(tissue,celltype,k), <span class="dt">type=</span><span class="st">&quot;esearch&quot;</span>, <span class="dt">db=</span><span class="st">&quot;pubmed&quot;</span>, <span class="dt">datetype=</span><span class="st">'pdat'</span>, <span class="dt">mindate=</span><span class="dv">2000</span>, <span class="dt">maxdate=</span><span class="dv">2019</span>, <span class="dt">retmax=</span><span class="dv">500</span>)
@@ -169,11 +206,11 @@ pvals&lt;-<span class="kw">c</span>()
 M&lt;-pubmed_search_celltype
 N&lt;-pubmed_search_universe
 
-for(i in terms)
+<span class="cf">for</span>(i <span class="cf">in</span> terms)
 {
     x&lt;-pubmed_search_both[[i]]
     k&lt;-pubmed_search_term[[i]]
-    pvals[[i]]&lt;-<span class="kw">signif</span>(<span class="kw">phyper</span>(x<span class="dv">-1</span>,M,N-M,k,<span class="dt">lower.tail=</span>F),<span class="dv">2</span>)
+    pvals[[i]]&lt;-<span class="kw">signif</span>(<span class="kw">phyper</span>(x<span class="op">-</span><span class="dv">1</span>,M,N<span class="op">-</span>M,k,<span class="dt">lower.tail=</span>F),<span class="dv">2</span>)
 }
 
 PUBMEDsearch_results&lt;-<span class="kw">cbind</span>(terms,pvals,pubmed_search_both,pubmed_search_term,pubmed_search_celltype,pubmed_search_universe)</code></pre></div>

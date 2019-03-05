@@ -21,14 +21,46 @@ devtools::build_vignettes()
 And *then* rebuild the package, so it updates the doc.
 --> 
 
-```{r, eval=TRUE, include=TRUE, echo=FALSE}
-#just to be sure
+## Example data
+
+MTGOsc comes with some example data from the Mouse Atlas in the form of a (simplified for storage reasons) Seurat object. Let's start with loading Seurat and MTGO:
+
+```{r, echo=TRUE, eval=TRUE, results=FALSE, message=FALSE}
+library(Seurat)
 library(MTGOsc)
 ```
 
-## Overview
+Loading MTGOsc also loads two objects: *bladder* and *markers*.
 
-This is the vignette for MTGOsc.
+```{r, echo=TRUE, eval=TRUE}
+#this is a (simplified) Seurat object
+print(bladder)
+
+#this come from applying Seurat function FindAllMarkers() to the bladder dataset
+head(markers)
+```
+
+Bladder object contains three clusters:
+
+```{r, echo=TRUE, eval=TRUE}
+table(bladder@ident)
+```
+
+For this tutorial we'll focus on Urothelium, which is of intermediate size. We create two "selector" arrays, one for cells and one for genes.
+
+```{r, echo=TRUE, eval=TRUE}
+cells.selected = bladder@ident == 'Urothelium(Bladder)'
+genes.selected = subset(markers, cluster == 'Urothelium(Bladder)')$gene
+```
+
+MTGOsc needs a folder where to save temporary files and final results.
+
+```{r, echo=TRUE, eval=TRUE}
+root = tempdir() #change this to your preferred local path
+dir.create(root, recursive = TRUE, showWarnings = FALSE)
+```
+
+We are now ready to 
 
 ## Gene module enrichment on Reactome
 ```{r, echo=TRUE, eval=FALSE}
