@@ -20,7 +20,7 @@
 #' to compute a coexpression matrix between each pair of genes expression arrays. The matrix is
 #' saved in the passed directory.
 #'
-#' @param SeuratObject the Seurat object containing the expression data
+#' @param geneExpression a Seurat dgCMatrix (from the @data field in a Seurat object), containing the expression data
 #' @param outfolder the data folder where to save the results
 #' @param overwrite boolean. Should an existing coexpression file be overwritten on disk?
 #' @param fun the coexpression function, it will be fed two genes' expression arrays. Defaults to \link[stats]{cor}
@@ -28,7 +28,7 @@
 #'
 #' @return the coexpression matrix, in long form
 #' @export
-write.coexpressionMatrix = function(SeuratObject, outfolder, overwrite = FALSE, fun = cor, ...){
+write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE, fun = cor, ...){
   fn = get.filenames(outfolder)
 
   if (file.exists(fn$coexpression.filename) & !overwrite){
@@ -41,7 +41,7 @@ write.coexpressionMatrix = function(SeuratObject, outfolder, overwrite = FALSE, 
   writeLines(con=fp, paste(sep='\t', 'gene1', 'gene2', 'coexpr'))
 
   #number of genes
-  ngenes = length(rownames(SeuratObject@data))
+  ngenes = length(rownames(geneExpression@data))
 
   #room for returning the result
   l = ngenes * (ngenes-1) / 2 - 1
@@ -56,8 +56,8 @@ write.coexpressionMatrix = function(SeuratObject, outfolder, overwrite = FALSE, 
     for(gene2 in (gene1+1):ngenes){
       #computing correlation between two genes
       args = list(
-        SeuratObject@data[gene1,],
-        SeuratObject@data[gene2,],
+        geneExpression@data[gene1,],
+        geneExpression@data[gene2,],
         ...
       )
       res.curr = do.call(fun, args)
@@ -69,8 +69,8 @@ write.coexpressionMatrix = function(SeuratObject, outfolder, overwrite = FALSE, 
 
       #ready to save
       cnt = cnt + 1
-      g1[cnt] = rownames(SeuratObject@data)[gene1]
-      g2[cnt] = rownames(SeuratObject@data)[gene2]
+      g1[cnt] = rownames(geneExpression@data)[gene1]
+      g2[cnt] = rownames(geneExpression@data)[gene2]
       coexpr[cnt] = res.curr
     }
   }

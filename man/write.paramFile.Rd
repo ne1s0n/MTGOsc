@@ -4,7 +4,8 @@
 \alias{write.paramFile}
 \title{Writes a MTGO parameter file on disk}
 \usage{
-write.paramFile(outfolder, overwrite = FALSE, MinSize = 3, MaxSize = 30)
+write.paramFile(outfolder, overwrite = FALSE, MinSize = 3,
+  MaxSize = 30)
 }
 \arguments{
 \item{outfolder}{the data folder where to save the param file}

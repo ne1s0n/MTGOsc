@@ -4,8 +4,8 @@
 \alias{write.edges}
 \title{Compute and save network edges}
 \usage{
-write.edges(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE,
-  fun = abs.threshold, ...)
+write.edges(coexpression, outfolder, keep.weights = TRUE,
+  overwrite = TRUE, fun = abs.threshold, ...)
 }
 \arguments{
 \item{coexpression}{a coexpression matrix, in long form, as the one returned by \link{write.coexpressionMatrix}}

@@ -4,8 +4,8 @@
 \alias{scale.free.threshold}
 \title{Subset a coexpression network to maximise free scale fit}
 \usage{
-\method{scale}{free.threshold}(x, thresholds = seq(from = 0.1, to = 0.9, by =
-  0.1), target.gamma = 2, verbose = TRUE)
+\method{scale}{free.threshold}(x, thresholds = seq(from = 0.1, to = 0.9,
+  by = 0.1), target.gamma = 2, verbose = TRUE)
 }
 \arguments{
 \item{x}{a coexpression network, as returned by \link{write.coexpressionMatrix}}
