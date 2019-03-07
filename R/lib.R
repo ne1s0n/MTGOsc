@@ -97,12 +97,12 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
 #' @param outfolder the data folder where to save the results
 #' @param keep.weights boolean. If TRUE arc weights are kept. Defaults to FALSE.
 #' @param overwrite boolean. Should an existing edge file be overwritten on disk?
-#' @param fun edge filtering function, defaults to \link{abs.threshold}
+#' @param fun edge filtering function, defaults to \link{abs_threshold}
 #' @param ... extra arguments are passed to edge filtering function
 #'
 #' @return a trimmed network
 #' @export
-write.edges = function(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE, fun = abs.threshold, ...){
+write.edges = function(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE, fun = abs_threshold, ...){
   fn = get.filenames(outfolder)
 
   if (file.exists(fn$edges.filename) & !overwrite){
@@ -278,7 +278,7 @@ get.filenames = function(outfolder){
 #'
 #' @return a numeric array with the computed correlations
 #' @export
-cor.threshold = function(x, y, threshold = NULL, use = "everything", method = c("pearson", "kendall", "spearman")){
+cor_threshold = function(x, y, threshold = NULL, use = "everything", method = c("pearson", "kendall", "spearman")){
   if (!is.null(threshold)){
     #in this case we remove some samples
     x.bad = abs(x) <= threshold
@@ -302,7 +302,7 @@ cor.threshold = function(x, y, threshold = NULL, use = "everything", method = c(
 #'
 #' @return a smaller version of the original matrix
 #' @export
-abs.threshold = function(x, threshold = 0.5){
+abs_threshold = function(x, threshold = 0.5){
   sel = abs(x$coexpr) >= threshold
   return(x[sel,])
 }
@@ -323,7 +323,7 @@ abs.threshold = function(x, threshold = 0.5){
 #'
 #' @return a smaller version of the original matrix
 #' @export
-scale.free.threshold = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), target.gamma = 2, verbose=TRUE){
+scale_free_threshold = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), target.gamma = 2, verbose=TRUE){
   best.gamma = NULL
   best.delta = Inf
   best.network = NULL
