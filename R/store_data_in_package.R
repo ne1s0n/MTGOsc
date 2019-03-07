@@ -51,7 +51,7 @@
 # devtools::use_data(bladder, markers, overwrite = TRUE)
 #
 # #loading the pathway dictionary
-# mouse.pathways = read.table('~/research/Seurat2MTGO.notes/dataset5.2/data/Ensembl2Reactome_All_Levels.mus.musculus_mgi_small_caps.txt', stringsAsFactors = FALSE, sep='\t')
+# mouse.pathways = read.table('~/research/Seurat2MTGO.notes/dataset5.2/data/Ensembl2Reactome_All_Levels.mus.musculus_mgi_small_caps.txt', stringsAsFactors = FALSE, sep='\t', quote='')
 # colnames(mouse.pathways) = c('gene', 'pathway')
 #
 # #storing in MTGOsc
