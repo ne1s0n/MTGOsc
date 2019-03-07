@@ -5,7 +5,7 @@
 \title{Compute and save network edges}
 \usage{
 write.edges(coexpression, outfolder, keep.weights = TRUE,
-  overwrite = TRUE, fun = abs.threshold, ...)
+  overwrite = TRUE, fun = abs_threshold, ...)
 }
 \arguments{
 \item{coexpression}{a coexpression matrix, in long form, as the one returned by \link{write.coexpressionMatrix}}
@@ -16,7 +16,7 @@ write.edges(coexpression, outfolder, keep.weights = TRUE,
 
 \item{overwrite}{boolean. Should an existing edge file be overwritten on disk?}
 
-\item{fun}{edge filtering function, defaults to \link{abs.threshold}}
+\item{fun}{edge filtering function, defaults to \link{abs_threshold}}
 
 \item{...}{extra arguments are passed to edge filtering function}
 }
