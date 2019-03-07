@@ -70,7 +70,7 @@ We are now ready to start with MTGOsc:
 ```{r, echo=TRUE, eval=TRUE}
 dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
 coexp = write.coexpressionMatrix(geneExpression = bladder, outfolder = root)
-edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE)
+edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
 write.paramFile(outfolder = root)
 call.MTGO(outfolder = root, verbose = TRUE)
 ```
