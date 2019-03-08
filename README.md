@@ -15,4 +15,4 @@ A post-processing step after cell clustering
 Example of MTGO-SC application
 ------------------------------
 
-  A practical example of application on [MCA](http://bis.zju.edu.cn/MCA/) cluster, along with enrichment and term literature search, is provided in the Vignette.
+  A practical example of application on [MCA](http://bis.zju.edu.cn/MCA/) cluster, along with enrichment and term literature search, is provided in the [Vignette](https://github.com/ne1s0n/MTGOsc/blob/master/inst/doc/MTGOsc.vignette.pdf).
