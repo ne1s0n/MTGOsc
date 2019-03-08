@@ -24,12 +24,19 @@
 # #loading bladder full dataset
 # bladder.big = readRDS('~/research/Seurat2MTGO.notes/dataset5.2/data/Bladder.dataset5.RDS')
 #
+# #going to-lower to simplify match
+# bladder.big@var.genes = tolower(bladder.big@var.genes)
+# rownames(bladder.big@raw.data) = tolower(rownames(bladder.big@raw.data))
+# rownames(bladder.big@data) = tolower(rownames(bladder.big@data))
+# rownames(bladder.big@hvg.info) = tolower(rownames(bladder.big@hvg.info))
+# bladder.big@calc.params$ScaleData$genes.use = tolower(bladder.big@calc.params$ScaleData$genes.use)
+#
 # #finding differentially expressed genes for each cluster
-# markers = FindAllMarkers(bladder, logfc.threshold = 1)
+# markers = FindAllMarkers(bladder.big, logfc.threshold = 1)
 # table(markers$cluster)
 #
 # #listing the available clusters, with cell count
-# table(bladder@ident)
+# table(bladder.big@ident)
 #
 # #subsetting to just three clusters: a big one, a medium one, a small one
 #
