@@ -3,8 +3,6 @@ title: "MTGOsc: MTGO analysis on single cells"
 author: "Nelson Nazzicari, Simone Marini, Danila Vella"
 date: "`r Sys.Date()`"
 output: 
-  pdf_document:
-    toc: true
   rmarkdown::html_vignette:
     toc: true
 vignette: >
@@ -23,7 +21,7 @@ devtools::build_vignettes()
 And *then* rebuild the package, so it updates the doc.
 --> 
 
-## Example data
+## Example data: bladder basal epithelial cells
 
 MTGOsc comes with some example data from the Mouse Atlas in the form of a (simplified for storage reasons) Seurat object. Let's start with loading Seurat and MTGO:
 
@@ -50,6 +48,8 @@ Bladder object contains three clusters:
 ```{r, echo=TRUE, eval=TRUE}
 table(bladder@ident)
 ```
+
+## Calling MTGOsc
 
 For this tutorial we'll focus on Basal epitelial cells cluster, which is of intermediate size. We create two "selector" arrays, one for cells and one for genes.
 
