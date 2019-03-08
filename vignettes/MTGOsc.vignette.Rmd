@@ -73,6 +73,8 @@ coexp = write.coexpressionMatrix(geneExpression = bladder, outfolder = root)
 edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
 write.paramFile(outfolder = root)
 call.MTGO(outfolder = root, verbose = TRUE)
+network.collapsed = export.network.modules(infolder = root, collapse.modules = TRUE) 
+network.full = export.network.modules(infolder = root, collapse.modules = FALSE) 
 ```
 
 ## Gene module enrichment on Reactome

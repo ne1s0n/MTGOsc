@@ -158,11 +158,14 @@ write.paramFile = function(outfolder, overwrite = FALSE, MinSize = 3, MaxSize = 
   }
   dir.create(outfolder, showWarnings = FALSE, recursive = TRUE)
 
+  #MTGO expexts a trailing slash when a folder is inputed
+  outfolder.slash = paste(sep='', outfolder, .Platform$file.sep)
+
   #if we get here we can proceed
   fin = file(description = fn$param.filename, open = 'w')
   writeLines(con = fin, paste(sep='\t', 'PathEdge', fn$edges.filename))
   writeLines(con = fin, paste(sep='\t', 'PathGO', fn$GO.filename))
-  writeLines(con = fin, paste(sep='\t', 'PathResult', outfolder))
+  writeLines(con = fin, paste(sep='\t', 'PathResult', outfolder.slash))
   writeLines(con = fin, paste(sep='\t', 'MinSize', MinSize))
   writeLines(con = fin, paste(sep='\t', 'MaxSize', MaxSize))
   close(fin)
