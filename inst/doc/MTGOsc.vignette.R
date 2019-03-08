@@ -31,6 +31,8 @@ coexp = write.coexpressionMatrix(geneExpression = bladder, outfolder = root)
 edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
 write.paramFile(outfolder = root)
 call.MTGO(outfolder = root, verbose = TRUE)
+network.collapsed = export.network.modules(infolder = root, collapse.modules = TRUE) 
+network.full = export.network.modules(infolder = root, collapse.modules = FALSE) 
 
 ## ----eval=FALSE, include=FALSE-------------------------------------------
 #  # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is

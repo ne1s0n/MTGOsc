@@ -151,39 +151,35 @@ edges =<span class="st"> </span><span class="kw">write.edges</span>(<span class=
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.paramFile</span>(<span class="dt">outfolder =</span> root)
 <span class="kw">call.MTGO</span>(<span class="dt">outfolder =</span> root, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## ======&gt; MTGO executed with the following OUTPUT:
-##  /tmp/RtmpgxZyHX
-## Q: -0.023862486014172218
+##  /tmp/Rtmpclgprx/
+## Q: -0.019040705418509198
 ## QGO: 0.0
-## Cluster Mean Density: 0.06666666666666668
-## Q: 0.2933560658532682
-## QGO: 0.48
-## Cluster Mean Density: 0.2569430139863576
-## Q: 0.3092932495071652
-## QGO: 0.72
-## Cluster Mean Density: 0.29781082887700533
-## Q: 0.31224359315893185
+## Cluster Mean Density: 0.08055555555555556
+## Q: 0.2790172625073258
+## QGO: 0.62
+## Cluster Mean Density: 0.19532749858836818
+## Q: 0.25479514092386263
+## QGO: 0.84
+## Cluster Mean Density: 0.21703655391735888
+## Q: 0.29544728008950844
 ## QGO: 0.82
-## Cluster Mean Density: 0.16835927552839317
-## Q: 0.32875352975651284
-## QGO: 0.86
-## Cluster Mean Density: 0.1766361927546138
-## Q: 0.32069502903724195
-## QGO: 0.86
-## Cluster Mean Density: 0.18162810379335145
-## Q: 0.3287535297565129
-## QGO: 0.86
-## Cluster Mean Density: 0.1766361927546138
-## Q: 0.3152738558260958
-## QGO: 0.86
-## Cluster Mean Density: 0.1794901273906692
-## Q: 0.32876684959241254
-## QGO: 0.86
-## Cluster Mean Density: 0.1771682995367206
-## Q: 0.32876684959241254
-## QGO: 0.86
-## Cluster Mean Density: 0.1771682995367206
+## Cluster Mean Density: 0.23153896756837933
+## Q: 0.2744751984655537
+## QGO: 0.82
+## Cluster Mean Density: 0.19660085356679782
+## Q: 0.2918575843145603
+## QGO: 0.82
+## Cluster Mean Density: 0.23234388447236742
+## Q: 0.28121503543076226
+## QGO: 0.82
+## Cluster Mean Density: 0.1864983600277718
+## Q: 0.2812949544461605
+## QGO: 0.82
+## Cluster Mean Density: 0.18559652994637513
 ## 
 ## ======&gt; MTGO executed with the following ERRORS:</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">network.collapsed =<span class="st"> </span><span class="kw">export.network.modules</span>(<span class="dt">infolder =</span> root, <span class="dt">collapse.modules =</span> <span class="ot">TRUE</span>) 
+network.full =<span class="st"> </span><span class="kw">export.network.modules</span>(<span class="dt">infolder =</span> root, <span class="dt">collapse.modules =</span> <span class="ot">FALSE</span>) </code></pre></div>
 </div>
 <div id="gene-module-enrichment-on-reactome" class="section level2">
 <h2>Gene module enrichment on Reactome</h2>
