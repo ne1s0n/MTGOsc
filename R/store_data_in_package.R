@@ -37,13 +37,12 @@
 #
 # #listing the available clusters, with cell count
 # table(bladder.big@ident)
-#
 # #subsetting to just three clusters: a big one, a medium one, a small one
 #
 # #Stromal cell_Dpt high(Bladder) : 651 cells
-# #Urothelium(Bladder) : 277 cells
+# #Basal epithelial cell(Bladder) : 327 cells
 # #Umbrella cell(Bladder) : 50 cells
-# target = c('Stromal cell_Dpt high(Bladder)', 'Urothelium(Bladder)', 'Umbrella cell(Bladder)')
+# target = c('Stromal cell_Dpt high(Bladder)', 'Basal epithelial cell(Bladder)', 'Umbrella cell(Bladder)')
 # bladder = SubsetData(bladder.big, ident.use = target, do.clean = TRUE, subset.raw = TRUE)
 #
 # #and subsetting also to differentially expressed genes only
