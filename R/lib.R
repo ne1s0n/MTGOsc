@@ -39,6 +39,7 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
   dir.create(outfolder, showWarnings = FALSE, recursive = TRUE)
   fp = file(fn$coexpression.filename, open = 'w')
   writeLines(con=fp, paste(sep='\t', 'gene1', 'gene2', 'coexpr'))
+  fclose(fp)
 
   #number of genes
   ngenes = length(rownames(geneExpression@data))
