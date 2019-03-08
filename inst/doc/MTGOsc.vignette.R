@@ -9,6 +9,9 @@ print(bladder)
 #this come from applying Seurat function FindAllMarkers() to the bladder dataset
 head(markers)
 
+#this is a simple gene -> pathway dictionary
+head(mouse.pathways)
+
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
 table(bladder@ident)
 
@@ -16,11 +19,20 @@ table(bladder@ident)
 cells.selected = bladder@ident == 'Urothelium(Bladder)'
 genes.selected = subset(markers, cluster == 'Urothelium(Bladder)')$gene
 
+bladder@data = bladder@data[genes.selected, cells.selected]
+
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
 root = tempdir() #change this to your preferred local path
 dir.create(root, recursive = TRUE, showWarnings = FALSE)
 
-## ---- echo=TRUE, eval=FALSE----------------------------------------------
+## ---- echo=TRUE, eval=TRUE-----------------------------------------------
+dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
+coexp = write.coexpressionMatrix(geneExpression = bladder, outfolder = root)
+edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
+write.paramFile(outfolder = root)
+call.MTGO(outfolder = root, verbose = TRUE)
+
+## ----eval=FALSE, include=FALSE-------------------------------------------
 #  # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is
 #  # complementary to the exctraction of Reactome pathways by MTGO-SC.
 #  
@@ -48,7 +60,7 @@ dir.create(root, recursive = TRUE, showWarnings = FALSE)
 #    write.table(enriched, file = paste("../ReactomeErichment/ReactomePA.", name, sep = ""), row.names = FALSE, quote = FALSE, sep = ",")
 #  }
 
-## ---- echo=TRUE, eval=FALSE----------------------------------------------
+## ----eval=FALSE, include=FALSE-------------------------------------------
 #  # In this example we search the literature for the Basal Epithelial cell type and the pathway terms
 #  # retrieved by both MTGO-SC (pathway labelling gene modules) and ReactomePA (pathways enriched for the whole basal epithelial gene network
 #  

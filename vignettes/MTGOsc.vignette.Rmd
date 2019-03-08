@@ -76,7 +76,7 @@ call.MTGO(outfolder = root, verbose = TRUE)
 ```
 
 ## Gene module enrichment on Reactome
-```{r, echo=TRUE, eval=FALSE}
+```{r eval=FALSE, include=FALSE}
 # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is
 # complementary to the exctraction of Reactome pathways by MTGO-SC.
 
@@ -107,7 +107,7 @@ for (file in files){
 
 ## Enriched term literature search with RISmed
 
-```{r, echo=TRUE, eval=FALSE}
+```{r eval=FALSE, include=FALSE}
 # In this example we search the literature for the Basal Epithelial cell type and the pathway terms
 # retrieved by both MTGO-SC (pathway labelling gene modules) and ReactomePA (pathways enriched for the whole basal epithelial gene network
 

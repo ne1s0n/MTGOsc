@@ -30,7 +30,7 @@ library(Seurat)
 library(MTGOsc)
 ```
 
-Loading MTGOsc also loads two objects: *bladder* and *markers*.
+Loading MTGOsc also loads three objects: *bladder*, *markers*, and *mouse.pathways*.
 
 ```{r, echo=TRUE, eval=TRUE}
 #this is a (simplified) Seurat object
@@ -38,6 +38,9 @@ print(bladder)
 
 #this come from applying Seurat function FindAllMarkers() to the bladder dataset
 head(markers)
+
+#this is a simple gene -> pathway dictionary
+head(mouse.pathways)
 ```
 
 Bladder object contains three clusters:
@@ -51,6 +54,8 @@ For this tutorial we'll focus on Urothelium, which is of intermediate size. We c
 ```{r, echo=TRUE, eval=TRUE}
 cells.selected = bladder@ident == 'Urothelium(Bladder)'
 genes.selected = subset(markers, cluster == 'Urothelium(Bladder)')$gene
+
+bladder@data = bladder@data[genes.selected, cells.selected]
 ```
 
 MTGOsc needs a folder where to save temporary files and final results.
@@ -60,10 +65,18 @@ root = tempdir() #change this to your preferred local path
 dir.create(root, recursive = TRUE, showWarnings = FALSE)
 ```
 
-We are now ready to 
+We are now ready to start with MTGOsc:
+
+```{r, echo=TRUE, eval=TRUE}
+dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
+coexp = write.coexpressionMatrix(geneExpression = bladder, outfolder = root)
+edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
+write.paramFile(outfolder = root)
+call.MTGO(outfolder = root, verbose = TRUE)
+```
 
 ## Gene module enrichment on Reactome
-```{r, echo=TRUE, eval=FALSE}
+```{r eval=FALSE, include=FALSE}
 # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is
 # complementary to the exctraction of Reactome pathways by MTGO-SC.
 
@@ -94,7 +107,7 @@ for (file in files){
 
 ## Enriched term literature search with RISmed
 
-```{r, echo=TRUE, eval=FALSE}
+```{r eval=FALSE, include=FALSE}
 # In this example we search the literature for the Basal Epithelial cell type and the pathway terms
 # retrieved by both MTGO-SC (pathway labelling gene modules) and ReactomePA (pathways enriched for the whole basal epithelial gene network
 
