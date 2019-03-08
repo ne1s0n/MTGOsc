@@ -27,43 +27,49 @@ root = tempdir() #change this to your preferred local path
 dir.create(root, recursive = TRUE, showWarnings = FALSE)
 
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
+#building a genes-pathways dictionary
 dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
+
+#computign gene coexpression (default function is 'cor')
 coexp = write.coexpressionMatrix(geneExpression = my.bladder, outfolder = root)
+
+#thinning coexpression network via scale criterion
 edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
+
+#writing a parameter file, useful for MGTO
 write.paramFile(outfolder = root)
+
+#actual call to MTGO
 call.MTGO(outfolder = root, verbose = TRUE)
+
+#building and saving representation of resulting network
 network.collapsed = export.network.modules(infolder = root, collapse.modules = TRUE) 
 network.full = export.network.modules(infolder = root, collapse.modules = FALSE) 
 
-## ----eval=FALSE, include=FALSE-------------------------------------------
-#  # Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is
-#  # complementary to the exctraction of Reactome pathways by MTGO-SC.
-#  
-#  # load libraries for gene enrichment on Reactome
-#  library(ReactomePA)
-#  library(clusterProfiler)
-#  
-#  firstup <- function(x) {
-#    x <- tolower(x)
-#    substr(x, 1, 1) <- toupper(substr(x, 1, 1))
-#    return(x)
-#  }
-#  
-#  # collecting all the genes
-#  files <- list.files(path = "../ReactomeErichment")
-#  
-#  genes = unique(c(edges$gene1, edges$gene2)
-#  
-#  for (file in files){
-#    genes <- read.table(file, stringsAsFactors = FALSE) #cambiare
-#    genes <- firstup(genes[2:length(genes$V1),]) #prima lettera maiuscola, tenere
-#    genes = bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db") #va scaricato "org.Mm.eg.db"
-#    genes = genes$ENTREZID
-#    names <- strsplit(file, "/")
-#    name <- names[[1]][length(names[[1]])]
-#    enriched <- enrichPathway(gene=genes, pvalueCutoff=0.05, readable=T, organism = "mouse", pAdjustMethod = "BH")
-#    write.table(enriched, file = paste("../ReactomeErichment/ReactomePA.", name, sep = ""), row.names = FALSE, quote = FALSE, sep = ",")
-#  }
+## ----eval=TRUE, include=TRUE, message=FALSE------------------------------
+# load libraries for gene enrichment on Reactome (those are on Bioconductor, not CRAN)
+library(ReactomePA)      
+library(clusterProfiler)
+library(org.Mm.eg.db)
+
+#a support function to take care of gene upper/lower case convention
+firstup = function(x) {
+  x = tolower(x)
+  substr(x, 1, 1) = toupper(substr(x, 1, 1))
+  return(x)
+}
+
+#the list of all genes involved in the cluster
+genes = unique(c(as.character(edges$gene1), as.character(edges$gene2)))
+
+#correct casing of gene names
+genes = firstup(genes)
+
+#translating gene names to ENTREZID via org.Mm.eg.db database
+genes = bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+
+#the actual enrichment
+enriched = enrichPathway(gene=genes$ENTREZID, pvalueCutoff=0.05, readable=T, organism = "mouse", pAdjustMethod = "BH")
 
 ## ----eval=FALSE, include=FALSE-------------------------------------------
 #  # In this example we search the literature for the Basal Epithelial cell type and the pathway terms

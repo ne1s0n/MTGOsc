@@ -77,7 +77,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li><a href="#example-data">Example data</a></li>
 <li><a href="#gene-module-enrichment-on-reactome">Gene module enrichment on Reactome</a></li>
-<li><a href="#enriched-term-literature-search-with-rismed">Enriched term literature search with RISmed</a></li>
 </ul>
 </div>
 
@@ -143,44 +142,80 @@ my.bladder<span class="op">@</span>data =<span class="st"> </span>my.bladder<spa
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">root =<span class="st"> </span><span class="kw">tempdir</span>() <span class="co">#change this to your preferred local path</span>
 <span class="kw">dir.create</span>(root, <span class="dt">recursive =</span> <span class="ot">TRUE</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <p>We are now ready to start with MTGOsc:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dict =<span class="st"> </span><span class="kw">write.dictionary</span>(<span class="dt">genes=</span>mouse.pathways<span class="op">$</span>gene, <span class="dt">terms =</span> mouse.pathways<span class="op">$</span>pathway, <span class="dt">outfolder =</span> root)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#building a genes-pathways dictionary</span>
+dict =<span class="st"> </span><span class="kw">write.dictionary</span>(<span class="dt">genes=</span>mouse.pathways<span class="op">$</span>gene, <span class="dt">terms =</span> mouse.pathways<span class="op">$</span>pathway, <span class="dt">outfolder =</span> root)
+
+<span class="co">#computign gene coexpression (default function is 'cor')</span>
 coexp =<span class="st"> </span><span class="kw">write.coexpressionMatrix</span>(<span class="dt">geneExpression =</span> my.bladder, <span class="dt">outfolder =</span> root)
+
+<span class="co">#thinning coexpression network via scale criterion</span>
 edges =<span class="st"> </span><span class="kw">write.edges</span>(<span class="dt">coexpression =</span> coexp, <span class="dt">outfolder =</span> root, <span class="dt">keep.weights =</span> <span class="ot">FALSE</span>, <span class="dt">fun =</span> scale_free_threshold)</code></pre></div>
 <pre><code>## gamma: 2.05513085766315 (target:2)
 ## threshold: 0.3
 ## network edges: 33</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.paramFile</span>(<span class="dt">outfolder =</span> root)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#writing a parameter file, useful for MGTO</span>
+<span class="kw">write.paramFile</span>(<span class="dt">outfolder =</span> root)
+
+<span class="co">#actual call to MTGO</span>
 <span class="kw">call.MTGO</span>(<span class="dt">outfolder =</span> root, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## ======&gt; MTGO executed with the following OUTPUT:
-##  /tmp/RtmpZ4qbKx/
-## Q: 0.13360881542699687
+##  /tmp/RtmpRYlbVE/
+## Q: -0.09320477502295736
 ## QGO: 0.0
-## Cluster Mean Density: 0.14047619047619045
-## Q: 0.39761248852157827
-## QGO: 0.75
-## Cluster Mean Density: 0.2191197691197691
-## Q: 0.4256198347107424
-## QGO: 0.75
-## Cluster Mean Density: 0.2323051948051948
-## Q: 0.5045913682277302
-## QGO: 0.7
-## Cluster Mean Density: 0.2575091575091575
-## Q: 0.5036730945821839
-## QGO: 0.75
-## Cluster Mean Density: 0.3995726495726496
-## Q: 0.5036730945821839
-## QGO: 0.75
-## Cluster Mean Density: 0.3995726495726496
+## Cluster Mean Density: 0.039285714285714285
+## Q: 0.5165289256198334
+## QGO: 0.8
+## Cluster Mean Density: 0.2513888888888889
+## Q: 0.5009182736455451
+## QGO: 0.85
+## Cluster Mean Density: 0.23174603174603176
+## Q: 0.49540863177226685
+## QGO: 0.85
+## Cluster Mean Density: 0.26717171717171717
+## Q: 0.4999999999999987
+## QGO: 0.85
+## Cluster Mean Density: 0.2317460317460317
+## Q: 0.49540863177226685
+## QGO: 0.85
+## Cluster Mean Density: 0.26717171717171717
+## Q: 0.49540863177226685
+## QGO: 0.85
+## Cluster Mean Density: 0.26717171717171717
 ## 
 ## ======&gt; MTGO executed with the following ERRORS:</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">network.collapsed =<span class="st"> </span><span class="kw">export.network.modules</span>(<span class="dt">infolder =</span> root, <span class="dt">collapse.modules =</span> <span class="ot">TRUE</span>) 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#building and saving representation of resulting network</span>
+network.collapsed =<span class="st"> </span><span class="kw">export.network.modules</span>(<span class="dt">infolder =</span> root, <span class="dt">collapse.modules =</span> <span class="ot">TRUE</span>) 
 network.full =<span class="st"> </span><span class="kw">export.network.modules</span>(<span class="dt">infolder =</span> root, <span class="dt">collapse.modules =</span> <span class="ot">FALSE</span>) </code></pre></div>
+<p>At this point networks are saved on disk, in “Network” subfolder, in the form of two html files. In the first one (ClusterNetwork.html) each functional module is collapsed to a single node, the second one (FullNetwork.html) where each gene is represented and functional modules are color coded.</p>
 </div>
 <div id="gene-module-enrichment-on-reactome" class="section level2">
 <h2>Gene module enrichment on Reactome</h2>
-</div>
-<div id="enriched-term-literature-search-with-rismed" class="section level2">
-<h2>Enriched term literature search with RISmed</h2>
+<p>Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is complementary to the exctraction of Reactome pathways by MTGO-SC.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># load libraries for gene enrichment on Reactome (those are on Bioconductor, not CRAN)</span>
+<span class="kw">library</span>(ReactomePA)      
+<span class="kw">library</span>(clusterProfiler)
+<span class="kw">library</span>(org.Mm.eg.db)
+
+<span class="co">#a support function to take care of gene upper/lower case convention</span>
+firstup =<span class="st"> </span><span class="cf">function</span>(x) {
+  x =<span class="st"> </span><span class="kw">tolower</span>(x)
+  <span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>) =<span class="st"> </span><span class="kw">toupper</span>(<span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="dv">1</span>))
+  <span class="kw">return</span>(x)
+}
+
+<span class="co">#the list of all genes involved in the cluster</span>
+genes =<span class="st"> </span><span class="kw">unique</span>(<span class="kw">c</span>(<span class="kw">as.character</span>(edges<span class="op">$</span>gene1), <span class="kw">as.character</span>(edges<span class="op">$</span>gene2)))
+
+<span class="co">#correct casing of gene names</span>
+genes =<span class="st"> </span><span class="kw">firstup</span>(genes)
+
+<span class="co">#translating gene names to ENTREZID via org.Mm.eg.db database</span>
+genes =<span class="st"> </span><span class="kw">bitr</span>(genes, <span class="dt">fromType=</span><span class="st">&quot;SYMBOL&quot;</span>, <span class="dt">toType=</span><span class="st">&quot;ENTREZID&quot;</span>, <span class="dt">OrgDb=</span><span class="st">&quot;org.Mm.eg.db&quot;</span>)</code></pre></div>
+<pre><code>## Warning in bitr(genes, fromType = &quot;SYMBOL&quot;, toType = &quot;ENTREZID&quot;, OrgDb =
+## &quot;org.Mm.eg.db&quot;): 9.09% of input gene IDs are fail to map...</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#the actual enrichment</span>
+enriched =<span class="st"> </span><span class="kw">enrichPathway</span>(<span class="dt">gene=</span>genes<span class="op">$</span>ENTREZID, <span class="dt">pvalueCutoff=</span><span class="fl">0.05</span>, <span class="dt">readable=</span>T, <span class="dt">organism =</span> <span class="st">&quot;mouse&quot;</span>, <span class="dt">pAdjustMethod =</span> <span class="st">&quot;BH&quot;</span>)</code></pre></div>
+<!-- ## Enriched term literature search with RISmed -->
 </div>
 
 
