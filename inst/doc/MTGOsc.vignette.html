@@ -100,23 +100,23 @@ And *then* rebuild the package, so it updates the doc.
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#this is a (simplified) Seurat object</span>
 <span class="kw">print</span>(bladder)</code></pre></div>
 <pre><code>## An object of class seurat in project Bladder_rm.batch_dge.txt 
-##  270 genes across 978 samples.</code></pre>
+##  269 genes across 1028 samples.</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#this come from applying Seurat function FindAllMarkers() to the bladder dataset</span>
 <span class="kw">head</span>(markers)</code></pre></div>
-<pre><code>##                  p_val avg_logFC pct.1 pct.2     p_val_adj
-## dpt.8     0.000000e+00  2.477901 0.840 0.075  0.000000e+00
-## lum.10    0.000000e+00  2.345470 0.972 0.188  0.000000e+00
-## mgp.9    6.035591e-291  2.415152 0.985 0.388 8.199954e-287
-## clec3b.9 2.036329e-270  1.868069 0.963 0.227 2.766557e-266
-## dcn.9    1.645978e-252  1.516147 1.000 0.383 2.236226e-248
-## cxcl12.7 1.461457e-237  2.115419 0.862 0.193 1.985535e-233
-##                                 cluster   gene
-## dpt.8    Stromal cell_Dpt high(Bladder)    dpt
-## lum.10   Stromal cell_Dpt high(Bladder)    lum
-## mgp.9    Stromal cell_Dpt high(Bladder)    mgp
-## clec3b.9 Stromal cell_Dpt high(Bladder) clec3b
-## dcn.9    Stromal cell_Dpt high(Bladder)    dcn
-## cxcl12.7 Stromal cell_Dpt high(Bladder) cxcl12</code></pre>
+<pre><code>##                p_val avg_logFC pct.1 pct.2     p_val_adj
+## krt15  1.523860e-202  1.959457 0.994 0.269 2.070317e-198
+## igfbp2 3.880320e-196  1.857702 1.000 0.322 5.271803e-192
+## trf    2.219344e-186  1.747788 0.896 0.189 3.015200e-182
+## krt5   1.329655e-180  1.730088 0.976 0.276 1.806470e-176
+## gsdmc2 1.235398e-172  1.711701 0.908 0.208 1.678412e-168
+## gsto1  2.506894e-172  1.629429 0.985 0.299 3.405866e-168
+##                               cluster   gene
+## krt15  Basal epithelial cell(Bladder)  krt15
+## igfbp2 Basal epithelial cell(Bladder) igfbp2
+## trf    Basal epithelial cell(Bladder)    trf
+## krt5   Basal epithelial cell(Bladder)   krt5
+## gsdmc2 Basal epithelial cell(Bladder) gsdmc2
+## gsto1  Basal epithelial cell(Bladder)  gsto1</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#this is a simple gene -&gt; pathway dictionary</span>
 <span class="kw">head</span>(mouse.pathways)</code></pre></div>
 <pre><code>##    gene                                  pathway
@@ -129,53 +129,48 @@ And *then* rebuild the package, so it updates the doc.
 <p>Bladder object contains three clusters:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(bladder<span class="op">@</span>ident)</code></pre></div>
 <pre><code>## 
-## Stromal cell_Dpt high(Bladder)         Umbrella cell(Bladder) 
-##                            651                             50 
-##            Urothelium(Bladder) 
-##                            277</code></pre>
-<p>For this tutorial we’ll focus on Urothelium, which is of intermediate size. We create two “selector” arrays, one for cells and one for genes.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cells.selected =<span class="st"> </span>bladder<span class="op">@</span>ident <span class="op">==</span><span class="st"> 'Urothelium(Bladder)'</span>
-genes.selected =<span class="st"> </span><span class="kw">subset</span>(markers, cluster <span class="op">==</span><span class="st"> 'Urothelium(Bladder)'</span>)<span class="op">$</span>gene
+## Basal epithelial cell(Bladder) Stromal cell_Dpt high(Bladder) 
+##                            327                            651 
+##         Umbrella cell(Bladder) 
+##                             50</code></pre>
+<p>For this tutorial we’ll focus on Basal epitelial cells cluster, which is of intermediate size. We create two “selector” arrays, one for cells and one for genes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cells.selected =<span class="st"> </span>bladder<span class="op">@</span>ident <span class="op">==</span><span class="st"> 'Basal epithelial cell(Bladder)'</span>
+genes.selected =<span class="st"> </span><span class="kw">subset</span>(markers, cluster <span class="op">==</span><span class="st"> 'Basal epithelial cell(Bladder)'</span>)<span class="op">$</span>gene
 
-bladder<span class="op">@</span>data =<span class="st"> </span>bladder<span class="op">@</span>data[genes.selected, cells.selected]</code></pre></div>
+my.bladder =<span class="st"> </span>bladder
+my.bladder<span class="op">@</span>data =<span class="st"> </span>my.bladder<span class="op">@</span>data[genes.selected, cells.selected]</code></pre></div>
 <p>MTGOsc needs a folder where to save temporary files and final results.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">root =<span class="st"> </span><span class="kw">tempdir</span>() <span class="co">#change this to your preferred local path</span>
 <span class="kw">dir.create</span>(root, <span class="dt">recursive =</span> <span class="ot">TRUE</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)</code></pre></div>
 <p>We are now ready to start with MTGOsc:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dict =<span class="st"> </span><span class="kw">write.dictionary</span>(<span class="dt">genes=</span>mouse.pathways<span class="op">$</span>gene, <span class="dt">terms =</span> mouse.pathways<span class="op">$</span>pathway, <span class="dt">outfolder =</span> root)
-coexp =<span class="st"> </span><span class="kw">write.coexpressionMatrix</span>(<span class="dt">geneExpression =</span> bladder, <span class="dt">outfolder =</span> root)
+coexp =<span class="st"> </span><span class="kw">write.coexpressionMatrix</span>(<span class="dt">geneExpression =</span> my.bladder, <span class="dt">outfolder =</span> root)
 edges =<span class="st"> </span><span class="kw">write.edges</span>(<span class="dt">coexpression =</span> coexp, <span class="dt">outfolder =</span> root, <span class="dt">keep.weights =</span> <span class="ot">FALSE</span>, <span class="dt">fun =</span> scale_free_threshold)</code></pre></div>
-<pre><code>## gamma: 3.65727078224781 (target:2)
+<pre><code>## gamma: 2.05513085766315 (target:2)
 ## threshold: 0.3
-## network edges: 274</code></pre>
+## network edges: 33</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">write.paramFile</span>(<span class="dt">outfolder =</span> root)
 <span class="kw">call.MTGO</span>(<span class="dt">outfolder =</span> root, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## ======&gt; MTGO executed with the following OUTPUT:
-##  /tmp/Rtmpclgprx/
-## Q: -0.019040705418509198
+##  /tmp/RtmpZ4qbKx/
+## Q: 0.13360881542699687
 ## QGO: 0.0
-## Cluster Mean Density: 0.08055555555555556
-## Q: 0.2790172625073258
-## QGO: 0.62
-## Cluster Mean Density: 0.19532749858836818
-## Q: 0.25479514092386263
-## QGO: 0.84
-## Cluster Mean Density: 0.21703655391735888
-## Q: 0.29544728008950844
-## QGO: 0.82
-## Cluster Mean Density: 0.23153896756837933
-## Q: 0.2744751984655537
-## QGO: 0.82
-## Cluster Mean Density: 0.19660085356679782
-## Q: 0.2918575843145603
-## QGO: 0.82
-## Cluster Mean Density: 0.23234388447236742
-## Q: 0.28121503543076226
-## QGO: 0.82
-## Cluster Mean Density: 0.1864983600277718
-## Q: 0.2812949544461605
-## QGO: 0.82
-## Cluster Mean Density: 0.18559652994637513
+## Cluster Mean Density: 0.14047619047619045
+## Q: 0.39761248852157827
+## QGO: 0.75
+## Cluster Mean Density: 0.2191197691197691
+## Q: 0.4256198347107424
+## QGO: 0.75
+## Cluster Mean Density: 0.2323051948051948
+## Q: 0.5045913682277302
+## QGO: 0.7
+## Cluster Mean Density: 0.2575091575091575
+## Q: 0.5036730945821839
+## QGO: 0.75
+## Cluster Mean Density: 0.3995726495726496
+## Q: 0.5036730945821839
+## QGO: 0.75
+## Cluster Mean Density: 0.3995726495726496
 ## 
 ## ======&gt; MTGO executed with the following ERRORS:</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">network.collapsed =<span class="st"> </span><span class="kw">export.network.modules</span>(<span class="dt">infolder =</span> root, <span class="dt">collapse.modules =</span> <span class="ot">TRUE</span>) 

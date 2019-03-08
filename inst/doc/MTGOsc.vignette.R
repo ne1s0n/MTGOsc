@@ -16,10 +16,11 @@ head(mouse.pathways)
 table(bladder@ident)
 
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
-cells.selected = bladder@ident == 'Urothelium(Bladder)'
-genes.selected = subset(markers, cluster == 'Urothelium(Bladder)')$gene
+cells.selected = bladder@ident == 'Basal epithelial cell(Bladder)'
+genes.selected = subset(markers, cluster == 'Basal epithelial cell(Bladder)')$gene
 
-bladder@data = bladder@data[genes.selected, cells.selected]
+my.bladder = bladder
+my.bladder@data = my.bladder@data[genes.selected, cells.selected]
 
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
 root = tempdir() #change this to your preferred local path
@@ -27,7 +28,7 @@ dir.create(root, recursive = TRUE, showWarnings = FALSE)
 
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
 dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
-coexp = write.coexpressionMatrix(geneExpression = bladder, outfolder = root)
+coexp = write.coexpressionMatrix(geneExpression = my.bladder, outfolder = root)
 edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
 write.paramFile(outfolder = root)
 call.MTGO(outfolder = root, verbose = TRUE)
@@ -51,10 +52,12 @@ network.full = export.network.modules(infolder = root, collapse.modules = FALSE)
 #  # collecting all the genes
 #  files <- list.files(path = "../ReactomeErichment")
 #  
+#  genes = unique(c(edges$gene1, edges$gene2)
+#  
 #  for (file in files){
-#    genes <- read.table(file, stringsAsFactors = FALSE)
-#    genes <- firstup(genes[2:length(genes$V1),])
-#    genes = bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
+#    genes <- read.table(file, stringsAsFactors = FALSE) #cambiare
+#    genes <- firstup(genes[2:length(genes$V1),]) #prima lettera maiuscola, tenere
+#    genes = bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db") #va scaricato "org.Mm.eg.db"
 #    genes = genes$ENTREZID
 #    names <- strsplit(file, "/")
 #    name <- names[[1]][length(names[[1]])]
@@ -69,8 +72,8 @@ network.full = export.network.modules(infolder = root, collapse.modules = FALSE)
 #  library(RISmed)
 #  
 #  # set the search parameters
-#  file_MTGO<-"Modules_Best_QGO.txt"
-#  file_enriched<-"Basal epithelial cell"
+#  file_MTGO<-"Modules_Best_QGO.txt" #path
+#  file_enriched<-"Basal epithelial cell" #passare la variabile
 #  tissue<-"Bladder"
 #  celltype<-"Basal Epithelial Cell"
 #  
@@ -87,12 +90,12 @@ network.full = export.network.modules(infolder = root, collapse.modules = FALSE)
 #  pubmed_search_term<-c()
 #  for(k in terms)
 #  {
-#      print(k)
-#  res <- EUtilsSummary(paste(tissue,celltype,k), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500)
-#  pubmed_search_both[[k]]<-QueryCount(res)
-#  res <- EUtilsSummary(paste(tissue,k), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500)
-#  pubmed_search_term[[k]]<-QueryCount(res)
-#  Sys.sleep(0.5)  # a connection error might occur without this pause
+#    print(k)
+#    res <- EUtilsSummary(paste(tissue,celltype,k), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500)
+#    pubmed_search_both[[k]]<-QueryCount(res)
+#    res <- EUtilsSummary(paste(tissue,k), type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500)
+#    pubmed_search_term[[k]]<-QueryCount(res)
+#    Sys.sleep(0.5)  # a connection error might occur without this pause
 #  }
 #  
 #  pubmed_search_universe<-QueryCount(EUtilsSummary(tissue, type="esearch", db="pubmed", datetype='pdat', mindate=2000, maxdate=2019, retmax=500))
