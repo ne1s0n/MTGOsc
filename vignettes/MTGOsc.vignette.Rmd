@@ -3,6 +3,8 @@ title: "MTGOsc: MTGO analysis on single cells"
 author: "Nelson Nazzicari, Simone Marini, Danila Vella"
 date: "`r Sys.Date()`"
 output: 
+  pdf_document:
+    toc: true
   rmarkdown::html_vignette:
     toc: true
 vignette: >
