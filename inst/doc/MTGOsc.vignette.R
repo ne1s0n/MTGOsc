@@ -28,13 +28,15 @@ dir.create(root, recursive = TRUE, showWarnings = FALSE)
 
 ## ---- echo=TRUE, eval=TRUE-----------------------------------------------
 #building a genes-pathways dictionary
-dict = write.dictionary(genes=mouse.pathways$gene, terms = mouse.pathways$pathway, outfolder = root)
+dict = write.dictionary(genes=mouse.pathways$gene, 
+                        terms = mouse.pathways$pathway, outfolder = root)
 
 #computign gene coexpression (default function is 'cor')
 coexp = write.coexpressionMatrix(geneExpression = my.bladder, outfolder = root)
 
 #thinning coexpression network via scale criterion
-edges = write.edges(coexpression = coexp, outfolder = root, keep.weights = FALSE, fun = scale_free_threshold)
+edges = write.edges(coexpression = coexp, outfolder = root, 
+                    keep.weights = FALSE, fun = scale_free_threshold)
 
 #writing a parameter file, useful for MGTO
 write.paramFile(outfolder = root)
@@ -69,7 +71,8 @@ genes = firstup(genes)
 genes = bitr(genes, fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Mm.eg.db")
 
 #the actual enrichment
-enriched = enrichPathway(gene=genes$ENTREZID, pvalueCutoff=0.05, readable=T, organism = "mouse", pAdjustMethod = "BH")
+enriched = enrichPathway(gene=genes$ENTREZID, pvalueCutoff=0.05, 
+                         readable=T, organism = "mouse", pAdjustMethod = "BH")
 
 ## ----eval=FALSE, include=FALSE-------------------------------------------
 #  # In this example we search the literature for the Basal Epithelial cell type and the pathway terms
