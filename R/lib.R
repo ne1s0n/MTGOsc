@@ -36,56 +36,80 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
   }
 
   #if we get here we can proceed
+  mycols = c('gene1', 'gene2', 'coexpr')
   dir.create(outfolder, showWarnings = FALSE, recursive = TRUE)
   fp = file(fn$coexpression.filename, open = 'w')
-  writeLines(con=fp, paste(sep='\t', 'gene1', 'gene2', 'coexpr'))
+  writeLines(con=fp, paste(collapse ='\t', mycols))
   close(fp)
 
-  #number of genes
-  ngenes = length(rownames(geneExpression@data))
+  #computing coexpression as square, symmetric matrix
+  args = list(
+    geneExpression@data,
+    ...
+  )
+  coexpr.square = do.call(fun, args)
 
-  #room for returning the result
-  l = ngenes * (ngenes-1) / 2 - 1
-  g1 = array(dim=l)
-  g2 = array(dim=l)
-  coexpr = array(dim=l)
-  cnt = 0
-
-  #computing for each possible pair of genes the correlation, and writing right
-  #away in the output file
-  for (gene1 in 1:(ngenes-1)){
-    for(gene2 in (gene1+1):ngenes){
-      #computing correlation between two genes
-      args = list(
-        geneExpression@data[gene1,],
-        geneExpression@data[gene2,],
-        ...
-      )
-      res.curr = do.call(fun, args)
-
-      #removing NAs, indicating those genes that never vary
-      if(is.na(res.curr)){
-        next
-      }
-
-      #ready to save
-      cnt = cnt + 1
-      g1[cnt] = rownames(geneExpression@data)[gene1]
-      g2[cnt] = rownames(geneExpression@data)[gene2]
-      coexpr[cnt] = res.curr
-    }
+  #if it's not square and symmetric it means we had problems
+  if (!isSymmetric(coexpr.square)){
+    stop('Prolems with selected coexpression function: returned matrix is not square and symmetrical')
   }
-
+  
+  #if we get here we can pass from wide to long form and
+  #remove the duplicate values
+  coexpr.square[upper.tri(coexpr.square, diag = TRUE)] = NA
+  coexpr.long = reshape2::melt(coexpr.square, na.rm = TRUE)
+  colnames(coexpr.long) = mycols
+  
   #we can now save and return
-  coexpr.long = data.frame(
-    gene1=g1[1:cnt],
-    gene2=g2[1:cnt],
-    coexpr=coexpr[1:cnt])
-
-  #ready to save
   write.table(file = fn$coexpression.filename, x = coexpr.long, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
-
+  
   return(coexpr.long)
+  
+  #BELOW: old implementation, to be removed as soon as the 
+  #current one is tested
+  #  
+  # #room for returning the result
+  # l = ngenes * (ngenes-1) / 2 - 1
+  # g1 = array(dim=l)
+  # g2 = array(dim=l)
+  # coexpr = array(dim=l)
+  # cnt = 0
+  # 
+  # #computing for each possible pair of genes the correlation, and writing right
+  # #away in the output file
+  # for (gene1 in 1:(ngenes-1)){
+  #   for(gene2 in (gene1+1):ngenes){
+  #     #computing correlation between two genes
+  #     args = list(
+  #       geneExpression@data[gene1,],
+  #       geneExpression@data[gene2,],
+  #       ...
+  #     )
+  #     res.curr = do.call(fun, args)
+  # 
+  #     #removing NAs, indicating those genes that never vary
+  #     if(is.na(res.curr)){
+  #       next
+  #     }
+  # 
+  #     #ready to save
+  #     cnt = cnt + 1
+  #     g1[cnt] = rownames(geneExpression@data)[gene1]
+  #     g2[cnt] = rownames(geneExpression@data)[gene2]
+  #     coexpr[cnt] = res.curr
+  #   }
+  # }
+  # 
+  # #we can now save and return
+  # coexpr.long = data.frame(
+  #   gene1=g1[1:cnt],
+  #   gene2=g2[1:cnt],
+  #   coexpr=coexpr[1:cnt])
+  # 
+  # #ready to save
+  # write.table(file = fn$coexpression.filename, x = coexpr.long, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
+  # 
+  # return(coexpr.long)
 }
 
 #' Compute and save network edges
