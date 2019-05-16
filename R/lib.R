@@ -38,9 +38,6 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
   #if we get here we can proceed
   mycols = c('gene1', 'gene2', 'coexpr')
   dir.create(outfolder, showWarnings = FALSE, recursive = TRUE)
-  fp = file(fn$coexpression.filename, open = 'w')
-  writeLines(con=fp, paste(collapse ='\t', mycols))
-  close(fp)
 
   #computing coexpression as square, symmetric matrix
   args = list(
