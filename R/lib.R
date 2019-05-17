@@ -20,7 +20,7 @@
 #' to compute a coexpression matrix between each pair of genes expression arrays. The matrix is
 #' saved in the passed directory.
 #'
-#' @param geneExpression a Seurat dgCMatrix (from the @data field in a Seurat object), containing the expression data
+#' @param geneExpression a Seurat dgCMatrix (from the @data field in a Seurat object), containing the expression data.
 #' @param outfolder the data folder where to save the results
 #' @param overwrite boolean. Should an existing coexpression file be overwritten on disk?
 #' @param fun the coexpression function, it will be fed two genes' expression arrays. Defaults to \link[stats]{cor}
@@ -41,7 +41,7 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
 
   #computing coexpression as square, symmetric matrix
   args = list(
-    geneExpression@data,
+    as.matrix(geneExpression),
     ...
   )
   coexpr.square = do.call(fun, args)
@@ -50,28 +50,28 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
   if (!isSymmetric(coexpr.square)){
     stop('Prolems with selected coexpression function: returned matrix is not square and symmetrical')
   }
-  
+
   #if we get here we can pass from wide to long form and
   #remove the duplicate values
   coexpr.square[upper.tri(coexpr.square, diag = TRUE)] = NA
   coexpr.long = reshape2::melt(coexpr.square, na.rm = TRUE)
   colnames(coexpr.long) = mycols
-  
+
   #we can now save and return
   write.table(file = fn$coexpression.filename, x = coexpr.long, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
-  
+
   return(coexpr.long)
-  
-  #BELOW: old implementation, to be removed as soon as the 
+
+  #BELOW: old implementation, to be removed as soon as the
   #current one is tested
-  #  
+  #
   # #room for returning the result
   # l = ngenes * (ngenes-1) / 2 - 1
   # g1 = array(dim=l)
   # g2 = array(dim=l)
   # coexpr = array(dim=l)
   # cnt = 0
-  # 
+  #
   # #computing for each possible pair of genes the correlation, and writing right
   # #away in the output file
   # for (gene1 in 1:(ngenes-1)){
@@ -83,12 +83,12 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
   #       ...
   #     )
   #     res.curr = do.call(fun, args)
-  # 
+  #
   #     #removing NAs, indicating those genes that never vary
   #     if(is.na(res.curr)){
   #       next
   #     }
-  # 
+  #
   #     #ready to save
   #     cnt = cnt + 1
   #     g1[cnt] = rownames(geneExpression@data)[gene1]
@@ -96,16 +96,16 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
   #     coexpr[cnt] = res.curr
   #   }
   # }
-  # 
+  #
   # #we can now save and return
   # coexpr.long = data.frame(
   #   gene1=g1[1:cnt],
   #   gene2=g2[1:cnt],
   #   coexpr=coexpr[1:cnt])
-  # 
+  #
   # #ready to save
   # write.table(file = fn$coexpression.filename, x = coexpr.long, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
-  # 
+  #
   # return(coexpr.long)
 }
 
@@ -281,42 +281,6 @@ get.filenames = function(outfolder){
   return(res)
 }
 
-#' Compute correlation after absolute threshold filter
-#'
-#' This function is similar to the standard \link{cor}, but values are first filtered
-#' comparing them in absolute value to the passed \code{threshold}. For this reason
-#' it is not possible to support matrices as input.
-#' If \code{threshold} is NULL the function just falls back to standard correlation function.
-#' Otherwise it removes all values which are, for at least one array and in absolute value,
-#' less then passed threshold
-#'
-#' @param x a numeric vector
-#' @param y a second numeric vector
-#' @param threshold numeric value. If NA the func
-#' @param use an optional character string giving a method for computing
-#' covariances in the presence of missing values. This must be (an abbreviation of)
-#' one of the strings "everything", "all.obs", "complete.obs", "na.or.complete", or
-#' "pairwise.complete.obs".
-#' @param method a character string indicating which correlation coefficient
-#' (or covariance) is to be computed. One of "pearson" (default), "kendall", or
-#' "spearman": can be abbreviated.
-#'
-#' @return a numeric array with the computed correlations
-#' @export
-cor_threshold = function(x, y, threshold = NULL, use = "everything", method = c("pearson", "kendall", "spearman")){
-  if (!is.null(threshold)){
-    #in this case we remove some samples
-    x.bad = abs(x) <= threshold
-    y.bad = abs(y) <= threshold
-    bad = x.bad & y.bad
-    x = x[!bad]
-    y = y[!bad]
-  }
-
-  #ready to run
-  return(cor(x=x, y=y, use=use, method=method))
-}
-
 #' Subset a coexpression network for thresholded absolute values
 #'
 #' This function removes from the passed coexpression network \code{x} all edges that,
@@ -348,7 +312,7 @@ abs_threshold = function(x, threshold = 0.5){
 #'
 #' @return a smaller version of the original matrix
 #' @export
-scale_free_threshold = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), target.gamma = 2, verbose=TRUE){
+thinning_scale_free = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), target.gamma = 2, verbose=TRUE){
   best.gamma = NULL
   best.delta = Inf
   best.network = NULL
@@ -386,6 +350,21 @@ scale_free_threshold = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), t
   }
 
   return(best.network)
+}
+
+#' Subset a coexpression network to the desired percentile
+#'
+#' This function subsets the edges from the passed network and keeps only
+#' those comprised in the desired top percentile.
+#'
+#' @param x a coexpression network, as returned by \link{write.coexpressionMatrix}
+#' @param top_percentile the desired percentile (e.g. 0.1 means "keep only top 10%")
+#'
+#' @return a smaller version of the original matrix
+#' @export
+thinning_percentile = function(x, top_percentile = 0.1){
+  threshold = quantile(x$coexpr, 1 - top_percentile)
+  return(subset(x, coexpr >= threshold))
 }
 
 #' Verifies if the correct Java version is installed on the system
@@ -428,3 +407,28 @@ verify.java = function(){
 Openjdk is not fine, you need to install the original one from Oracle.')
   }
 }
+
+#' Compute coexpression via propr::propr
+#'
+#' This function is a wrapper around \link{propr::propr} to compute coexpression starting from
+#' a Seurat dgCMatrix (from the @data field in a Seurat object), containing the expression data.
+#' This function returns only the @matrix field of the propr object.
+#'
+#' @param geneExpression a Seurat dgCMatrix (from the @data field in a Seurat object)
+#' @param verbose if TRUE the messages from \link{propr::propr} are not suppressed
+#' @param ... extra parameters are passed to \link{propr::propr}
+#'
+#' @return the @matrix field of a propr object
+#' @export
+coexpr_propr = function(geneExpression, verbose=FALSE, ...){
+  if (verbose){
+    #let's keep the messages
+    res = propr::propr(t(as.matrix(geneExpression)), ...)
+  }else{
+    #suppressed messages for better logs
+    suppressMessages({res = propr::propr(t(as.matrix(geneExpression)), ...)})
+  }
+  return(res@matrix)
+}
+
+
