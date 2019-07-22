@@ -23,11 +23,16 @@ devtools::build_vignettes()
 And *then* rebuild the package, so it updates the doc.
 --> 
 
+```{r, include=FALSE}
+#this is for latex debug, remove when all works well
+options(tinytex.verbose = TRUE)
+```
+
 ## Example data: bladder basal epithelial cells
 
 MTGOsc comes with some example data from the Mouse Atlas in the form of a (simplified for storage reasons) Seurat object. Let's start with loading Seurat and MTGO:
 
-```{r, echo=TRUE, eval=TRUE, results=FALSE, message=FALSE}
+```{r, echo=TRUE, eval=TRUE, results=FALSE, message=FALSE, warning=FALSE}
 library(Seurat)
 library(MTGOsc)
 ```
@@ -75,24 +80,28 @@ We are now ready to start with MTGOsc:
 ```{r, echo=TRUE, eval=TRUE}
 #building a genes-pathways dictionary
 dict = write.dictionary(genes=mouse.pathways$gene, 
-                        terms = mouse.pathways$pathway, outfolder = root)
+                       terms = mouse.pathways$pathway, outfolder = root)
 
 #computign gene coexpression (default function is 'cor')
-coexp = write.coexpressionMatrix(geneExpression = my.bladder, outfolder = root)
+coexp = write.coexpressionMatrix(geneExpression = my.bladder@data, outfolder = root)
 
-#thinning coexpression network via scale criterion
+#thinning coexpression network via scale free criterion
 edges = write.edges(coexpression = coexp, outfolder = root, 
-                    keep.weights = FALSE, fun = scale_free_threshold)
+                   keep.weights = FALSE, fun = thinning_scale_free)
 
 #writing a parameter file, useful for MGTO
 write.paramFile(outfolder = root)
+```
 
+All the groundwork is done and we can invoke MTGO:
+
+```{r, eval=FALSE, echo=TRUE}
 #actual call to MTGO
-call.MTGO(outfolder = root, verbose = TRUE)
-
+#call.MTGO(outfolder = root, verbose = TRUE) #this prints several log messages
+ 
 #building and saving representation of resulting network
-network.collapsed = export.network.modules(infolder = root, collapse.modules = TRUE) 
-network.full = export.network.modules(infolder = root, collapse.modules = FALSE) 
+#network.collapsed = export.network.modules(infolder = root, collapse.modules = TRUE) 
+#network.full = export.network.modules(infolder = root, collapse.modules = FALSE) 
 ```
 
 At this point networks are saved on disk, in "Network" subfolder, in the form of two html files. 
@@ -102,7 +111,7 @@ In the first one (ClusterNetwork.html) each functional module is collapsed to a 
 
 Here we look for Reactome pathway enrichment of the genes constituting the thinned network. This procedure is complementary to the exctraction of Reactome pathways by MTGO-SC.
 
-```{r eval=TRUE, include=TRUE, message=FALSE}
+```{r eval=FALSE, include=TRUE}
 # load libraries for gene enrichment on Reactome (those are on Bioconductor, not CRAN)
 library(ReactomePA)      
 library(clusterProfiler)
@@ -186,14 +195,110 @@ for(i in terms)
 PUBMEDsearch_results<-cbind(terms,pvals,pubmed_search_both,pubmed_search_term,pubmed_search_celltype,pubmed_search_universe)
 ```
 
+## Comparing network extraction methods
 
+In the previous example we extracted the gene interaction network that is fed to MTGO via a two step approach:
 
+1. computing gene coexpression (default function: *cor*)
+2. network thinning (we used the function *scale_free_threshold*)
 
+MTGOsc package offers several options for both steps, and it is always possible for the user to write and use their own functions. As such we propose an objective approach based on an (external) ground truth to select the best combination of functions.
 
+In general terms, we'll select the method that maximise the *Affinity Score* (AS), which is a metric of how close the extracted network is to a selected external ground truth. As such, the first thing we'll need is said ground truth, which luckily is already saved in MTGOsc:
 
+```{r Loading the Ground Truth, eval=TRUE, include=TRUE}
+#gGT is an iGraph object derived from four different sources:
+# - the CORUM database [1]
+# - a protein interaction map [2]
+# - String and Reactome databases [3]  
+summary(gGT)
+```
 
+For more details see the following references:
 
+1 Giurgiu M, Reinhard J, Brauner B, Dunger-Kaltenbach I, Fobo G, Frishman G, Montrone C, Ruepp A. CORUM: the comprehensive resource of mammalian protein complexes-2019. Nucleic Acids Res. 2018 Oct 24. doi: 10.1093/nar/gky973. [Epub ahead of print] 30357367
 
+2 Ramani, Arun K., et al. "A map of human protein interactions derived from co‐expression of human mRNAs and their orthologs." Molecular systems biology 4.1 (2008): 180.
 
+3 Skinnider, Michael A., Jordan W. Squair, and Leonard J. Foster. "Evaluating measures of association for single-cell transcriptomics." Nature methods 16.5 (2019): 381.
 
+For the sake of this tutorial we'll compare two methods for extracting the interaction network:
 
+* METHOD 1: 
+    + Gene coexpression computed via Pearson's correlation (default *cor* function)
+    + Network thinning to maximise scale free fit (*thinning_scale_free* function)
+* METHOD 2:
+    + Gene coexpression computed via proportionality metrics phi (*coexpr_propr* function)
+    + Network thinning to keep the top ten percent of all gene-gene interactions (*thinning_percentile* function)
+
+Extracted networks must be transformed in *iGraph* object, starting from the edges object, as follow:
+
+```{r, eval=TRUE, include=TRUE}
+#Edges for Method 1, computed above
+edges.M1 = edges
+
+#Edges for Method 2, on the same data
+coexp.M2 = write.coexpressionMatrix(
+  geneExpression = my.bladder@data, outfolder = root, fun = coexpr_propr, metric = 'phs', symmetrize = TRUE, overwrite = TRUE)
+edges.M2 = write.edges(coexpression = coexp.M2, outfolder = root, 
+                   keep.weights = FALSE, fun = thinning_percentile, overwrite = TRUE)
+
+#transforming into iGraph
+network.M1 = igraph::graph_from_edgelist(as.matrix(edges.M1),directed = FALSE)
+network.M2 = igraph::graph_from_edgelist(as.matrix(edges.M2),directed = FALSE)
+```
+
+The Affinity Scores can be directly computed as follows:
+
+```{r, eval=TRUE, include=TRUE}
+#support function to compute Affinity Score between two networks
+compute_AS = function(N1, N2){
+  E.N1 = length(igraph::E(N1))
+  E.N2 = length(igraph::E(N2))
+  overlap = length(igraph::E(igraph::intersection(N1, N2)))
+  
+  #the formula is [overlap^2] / (edges1 * edges2)
+  #but for better computation we implement it as
+  res = (overlap / E.N1) * (overlap / E.N2)
+  
+  #and we are done
+  return(res)
+}
+
+#ready to compute Affinity Scores for the examples
+AS.M1 = compute_AS(network.M1, gGT)
+AS.M2 = compute_AS(network.M2, gGT)
+```
+
+However they cannot be directly compared yet. For a proper comparison we should compute for each extracted network a random population of scrambled networks and then compare each AS to the distribution of scores. This will allow us to compute Z-scores and consequently P values associated to each extracted method. We can then (finally!) compare the logarithms of the P-values.
+
+```{r, eval=FALSE, include=TRUE}
+#numerosity for each random population
+N = 100 
+
+#room for Affinity Scores for the two scrambled networks populations
+AS.distr.M1 = c()
+AS.distr.M2 = c()
+
+#doing the computation
+for (i in 1:100){
+  #creating a random scramble of both networks
+  random.network.M1 = rewire(network.M1,with=keeping_degseq(niter = vcount(network.M1) * 10,loops = FALSE))
+  random.network.M2 = rewire(network.M2,with=keeping_degseq(niter = vcount(network.M2) * 10,loops = FALSE))
+  
+  #computing the new Affinity Scores
+  AS.distr.M1[i] = compute_AS(random.network.M1, gGT)
+  AS.distr.M2[i] = compute_AS(random.network.M2, gGT)
+}
+
+#Computing Z scores
+Z.M1 = (AS.M1 - mean(AS.distr.M1)) / sd(AS.distr.M1)
+Z.M2 = (AS.M2 - mean(AS.distr.M2)) / sd(AS.distr.M2)
+
+#Computing -log(P values)
+logP.M1 = -log(pnorm(-Z.M1))
+logP.M2 = -log(pnorm(-Z.M2))
+
+```
+
+At this point the methods can be compared directly. In our case Method 2 shows higher values and should thus be preferred.
