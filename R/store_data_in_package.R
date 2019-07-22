@@ -62,3 +62,10 @@
 #
 # #storing in MTGOsc
 # devtools::use_data(mouse.pathways, overwrite = TRUE)
+#
+# #loading the ground truth, for method comparison
+# load(file = '~/research/MTGOsc.notes/script/danila_AffinityScore/ground_truth.save')
+#
+# #storing in MTGOsc
+# devtools::use_data(gGT, overwrite = TRUE)
+
