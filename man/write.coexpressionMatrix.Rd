@@ -8,7 +8,7 @@ write.coexpressionMatrix(geneExpression, outfolder, overwrite = FALSE,
   fun = cor, ...)
 }
 \arguments{
-\item{geneExpression}{a Seurat dgCMatrix (from the @data field in a Seurat object), containing the expression data}
+\item{geneExpression}{a Seurat dgCMatrix (from the @data field in a Seurat object), containing the expression data.}
 
 \item{outfolder}{the data folder where to save the results}
 
