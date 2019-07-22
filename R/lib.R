@@ -358,7 +358,7 @@ thinning_scale_free = function(x, thresholds = seq(from=0.1, to=0.9, by=0.1), ta
 #' those comprised in the desired top percentile.
 #'
 #' @param x a coexpression network, as returned by \link{write.coexpressionMatrix}
-#' @param top_percentile the desired percentile (e.g. 0.1 means "keep only top 10%")
+#' @param top_percentile the desired percentile (e.g. 0.1 means "keep only top 10\%")
 #'
 #' @return a smaller version of the original matrix
 #' @export
@@ -379,11 +379,11 @@ thinning_percentile = function(x, top_percentile = 0.1){
 #' @export
 verify.java = function(){
   #executing MTGO, capturing output
-  res = system2(
+  res = try({system2(
     stdout = TRUE, stderr = TRUE,
     command = 'java',
     args = c('-version')
-  )
+  )}, TRUE)
 
   all.good = TRUE
 
