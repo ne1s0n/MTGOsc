@@ -1,10 +1,10 @@
 Package: MTGOsc
 Type: Package
 Title: MTGO analysis applied to Single Cell data
-Version: 0.1.0
+Version: 0.2.0
 Author: Nelson Nazzicari, Simone Marini, Danila Vella
 Maintainer: Nelson Nazzicari <nelson.nazzicari@gmail.com>
-Description: This package integrates MTGO MTGO (Module detection via Topological information and Gene Ontology (GO) knowledge) to single cell analysis.
+Description: This package integrates MTGO (Module detection via Topological information and Gene Ontology (GO) knowledge) to single cell analysis.
     Effort is made to seamless integration of Seurat results, together with visualization and filtering functions.
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
