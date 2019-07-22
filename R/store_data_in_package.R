@@ -54,18 +54,18 @@
 # bladder@scale.data = NULL
 #
 # #storing in MTGOsc
-# devtools::use_data(bladder, markers, overwrite = TRUE)
+# usethis::use_data(bladder, markers, overwrite = TRUE)
 #
 # #loading the pathway dictionary
 # mouse.pathways = read.table('~/research/Seurat2MTGO.notes/dataset5.2/data/Ensembl2Reactome_All_Levels.mus.musculus_mgi_small_caps.txt', stringsAsFactors = FALSE, sep='\t', quote='')
 # colnames(mouse.pathways) = c('gene', 'pathway')
 #
 # #storing in MTGOsc
-# devtools::use_data(mouse.pathways, overwrite = TRUE)
+# usethis::use_data(mouse.pathways, overwrite = TRUE)
 #
 # #loading the ground truth, for method comparison
 # load(file = '~/research/MTGOsc.notes/script/danila_AffinityScore/ground_truth.save')
 #
 # #storing in MTGOsc
-# devtools::use_data(gGT, overwrite = TRUE)
+# usethis::use_data(gGT, overwrite = TRUE)
 
