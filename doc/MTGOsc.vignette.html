@@ -13,7 +13,7 @@
 
 <meta name="author" content="Nelson Nazzicari, Simone Marini, Danila Vella" />
 
-<meta name="date" content="2019-07-22" />
+<meta name="date" content="2019-07-27" />
 
 <title>MTGOsc: MTGO analysis on single cells</title>
 
@@ -96,7 +96,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">MTGOsc: MTGO analysis on single cells</h1>
 <h4 class="author">Nelson Nazzicari, Simone Marini, Danila Vella</h4>
-<h4 class="date">2019-07-22</h4>
+<h4 class="date">2019-07-27</h4>
 
 
 <div id="TOC">
@@ -265,9 +265,11 @@ edges.M1 =<span class="st"> </span>edges
 
 <span class="co">#Edges for Method 2, on the same data</span>
 coexp.M2 =<span class="st"> </span><span class="kw">write.coexpressionMatrix</span>(
-  <span class="dt">geneExpression =</span> my.bladder<span class="op">@</span>data, <span class="dt">outfolder =</span> root, <span class="dt">fun =</span> coexpr_propr, <span class="dt">metric =</span> <span class="st">'phs'</span>, <span class="dt">symmetrize =</span> <span class="ot">TRUE</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
-edges.M2 =<span class="st"> </span><span class="kw">write.edges</span>(<span class="dt">coexpression =</span> coexp.M2, <span class="dt">outfolder =</span> root, 
-                   <span class="dt">keep.weights =</span> <span class="ot">FALSE</span>, <span class="dt">fun =</span> thinning_percentile, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
+  <span class="dt">geneExpression =</span> my.bladder<span class="op">@</span>data, <span class="dt">outfolder =</span> root, 
+  <span class="dt">fun =</span> coexpr_propr, <span class="dt">metric =</span> <span class="st">'phs'</span>, <span class="dt">symmetrize =</span> <span class="ot">TRUE</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
+edges.M2 =<span class="st"> </span><span class="kw">write.edges</span>(
+  <span class="dt">coexpression =</span> coexp.M2, <span class="dt">outfolder =</span> root, 
+  <span class="dt">keep.weights =</span> <span class="ot">FALSE</span>, <span class="dt">fun =</span> thinning_percentile, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
 
 <span class="co">#transforming into iGraph</span>
 network.M1 =<span class="st"> </span>igraph<span class="op">::</span><span class="kw">graph_from_edgelist</span>(<span class="kw">as.matrix</span>(edges.M1),<span class="dt">directed =</span> <span class="ot">FALSE</span>)
@@ -301,8 +303,10 @@ AS.distr.M2 =<span class="st"> </span><span class="kw">c</span>()
 <span class="co">#doing the computation</span>
 <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>){
   <span class="co">#creating a random scramble of both networks</span>
-  random.network.M1 =<span class="st"> </span><span class="kw">rewire</span>(network.M1,<span class="dt">with=</span><span class="kw">keeping_degseq</span>(<span class="dt">niter =</span> <span class="kw">vcount</span>(network.M1) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,<span class="dt">loops =</span> <span class="ot">FALSE</span>))
-  random.network.M2 =<span class="st"> </span><span class="kw">rewire</span>(network.M2,<span class="dt">with=</span><span class="kw">keeping_degseq</span>(<span class="dt">niter =</span> <span class="kw">vcount</span>(network.M2) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,<span class="dt">loops =</span> <span class="ot">FALSE</span>))
+  random.network.M1 =<span class="st"> </span><span class="kw">rewire</span>(
+    network.M1, <span class="dt">with =</span> <span class="kw">keeping_degseq</span>(<span class="dt">niter =</span> <span class="kw">vcount</span>(network.M1) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,<span class="dt">loops =</span> <span class="ot">FALSE</span>))
+  random.network.M2 =<span class="st"> </span><span class="kw">rewire</span>(
+    network.M2, <span class="dt">with =</span> <span class="kw">keeping_degseq</span>(<span class="dt">niter =</span> <span class="kw">vcount</span>(network.M2) <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,<span class="dt">loops =</span> <span class="ot">FALSE</span>))
   
   <span class="co">#computing the new Affinity Scores</span>
   AS.distr.M1[i] =<span class="st"> </span><span class="kw">compute_AS</span>(random.network.M1, gGT)
