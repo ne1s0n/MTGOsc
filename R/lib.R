@@ -119,12 +119,12 @@ write.coexpressionMatrix = function(geneExpression, outfolder, overwrite = FALSE
 #' @param outfolder the data folder where to save the results
 #' @param keep.weights boolean. If TRUE arc weights are kept. Defaults to FALSE.
 #' @param overwrite boolean. Should an existing edge file be overwritten on disk?
-#' @param fun edge filtering function, defaults to \link{abs_threshold}
+#' @param fun edge filtering function, defaults to \link{thinning_abs_threshold}
 #' @param ... extra arguments are passed to edge filtering function
 #'
 #' @return a trimmed network
 #' @export
-write.edges = function(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE, fun = abs_threshold, ...){
+write.edges = function(coexpression, outfolder, keep.weights = TRUE, overwrite = TRUE, fun = thinning_abs_threshold, ...){
   fn = get.filenames(outfolder)
 
   if (file.exists(fn$edges.filename) & !overwrite){
@@ -291,7 +291,7 @@ get.filenames = function(outfolder){
 #'
 #' @return a smaller version of the original matrix
 #' @export
-abs_threshold = function(x, threshold = 0.5){
+thinning_abs_threshold = function(x, threshold = 0.5){
   sel = abs(x$coexpr) >= threshold
   return(x[sel,])
 }
