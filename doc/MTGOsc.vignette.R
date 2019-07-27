@@ -152,8 +152,8 @@ edges.M2 = write.edges(
   keep.weights = FALSE, fun = thinning_percentile, overwrite = TRUE)
 
 #transforming into iGraph
-network.M1 = igraph::graph_from_edgelist(as.matrix(edges.M1),directed = FALSE)
-network.M2 = igraph::graph_from_edgelist(as.matrix(edges.M2),directed = FALSE)
+network.M1 = igraph::graph_from_edgelist(as.matrix(edges.M1), directed = FALSE)
+network.M2 = igraph::graph_from_edgelist(as.matrix(edges.M2), directed = FALSE)
 
 ## ---- eval=TRUE, include=TRUE--------------------------------------------
 #support function to compute Affinity Score between two networks
@@ -185,10 +185,10 @@ AS.M2 = compute_AS(network.M2, gGT)
 #  #doing the computation
 #  for (i in 1:100){
 #    #creating a random scramble of both networks
-#    random.network.M1 = rewire(
-#      network.M1, with = keeping_degseq(niter = vcount(network.M1) * 10,loops = FALSE))
-#    random.network.M2 = rewire(
-#      network.M2, with = keeping_degseq(niter = vcount(network.M2) * 10,loops = FALSE))
+#    random.network.M1 = igraph::rewire(network.M1, with = keeping_degseq(
+#      niter = igraph::vcount(network.M1) * 10, loops = FALSE))
+#    random.network.M2 = igraph::rewire(network.M2, with = keeping_degseq(
+#      niter = igraph::vcount(network.M2) * 10, loops = FALSE))
 #  
 #    #computing the new Affinity Scores
 #    AS.distr.M1[i] = compute_AS(random.network.M1, gGT)
