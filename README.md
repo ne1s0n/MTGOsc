@@ -16,3 +16,15 @@ Example of MTGO-SC application
 ------------------------------
 
 A practical example of application on [MCA](http://bis.zju.edu.cn/MCA/) cluster, along with enrichment and term literature search, is provided in the [Vignette](https://github.com/ne1s0n/MTGOsc/blob/master/doc/MTGOsc.vignette.pdf).
+
+Citing MTGO-SC
+==============
+
+Nazzicari, Nelson, Danila Vella, Claudia Coronnello, Dario Di Silvestre, Riccardo Bellazzi, and Simone Marini. "MTGO-SC, a tool to explore gene modules in single-cell RNA sequencing data." Frontiers in genetics (2019): 953.
+
+Developers
+==========
+
+* (main developer) Nelson Nazzicari - nelson _DOT_ nazzicari _AT_ crea _DOT_ gov _DOT_ it
+* Simone Marini - simone _DOT_ marini _AT_ ufl _DOT_ edu
+* Danila Vella - dvella _AT_ fondazionerimed _DOT_ com
